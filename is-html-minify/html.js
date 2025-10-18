@@ -31,26 +31,32 @@ export function minifyHTML(input, opts = {}) {
 
     if (cfg.trimAttrWhitespace || cfg.removeEmptyAttributes) {
       chunk = chunk.replace(/<([A-Za-z][^\s/>]*)([^>]*)>/g, (m, tag, attrs) => {
-        if (!attrs) return `<${tag}>`;
-        let a = attrs;
-
+        // skip closing tags
+        if (tag[0] === '/') return m;
+    
+        // detect self-closing
+        const selfClose = /\s*\/\s*$/.test(attrs);
+    
+        let a = attrs || '';
+    
         if (cfg.trimAttrWhitespace) {
-          // Collapse runs of whitespace in attributes
-          a = a.replace(/\s+/g, ' ');
-          // Trim around equals and quotes
-          a = a.replace(/\s*=\s*/g, '=');
-          // Trim leading space before first attr and trailing before '>'
-          a = a.replace(/^\s+/, ' ').replace(/\s+$/, '');
-          // Trim quoted attribute whitespace
-          a = a.replace(/="([^"]+)"/g, (_, v) => `="${v.trim()}"`)
-               .replace(/='([^']+)'/g, (_, v) => `='${v.trim()}'`);
+          a = a.replace(/\s+/g, ' ');       // collapse runs
+          a = a.replace(/\s*=\s*/g, '=');   // normalize =
+          // trim quoted values
+          a = a.replace(/="([^"]*)"/g, (_, v) => `="${v.trim()}"`)
+               .replace(/='([^']*)'/g, (_, v) => `='${v.trim()}'`);
+          a = a.trim();
         }
-
+    
         if (cfg.removeEmptyAttributes) {
-          a = a.replace(/\s+([^\s=/>]+)=(""\|''|\s*(?=>))/g, '');
+          // remove attr="" or attr='' or val-missing before > or />
+          a = a.replace(/\s+([^\s=/>]+)=(?:""|''|\s*(?=>|\/>))/g, '');
         }
-
-        return `<${tag}${a}>`;
+    
+        // rebuild
+        const attrsOut = a ? ` ${a}` : '';
+        const slash = selfClose ? '/' : '';
+        return `<${tag}${attrsOut}${slash}>`;
       });
     }
 
