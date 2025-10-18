@@ -58,7 +58,7 @@ It should also also normalize newlines and trim trim output.`;
 
     (async () => {
       try {
-        const { optimizePrompt } = await import('./prompt.js');
+        const { optimizePrompt } = await import('./prompt.js?v=3');
 
         function run() {
           const input = $('input').value || '';
