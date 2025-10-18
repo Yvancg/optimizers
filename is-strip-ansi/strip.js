@@ -3,40 +3,42 @@
 // Security: pure string processing; no eval; safe for untrusted logs.
 // Perf: O(n) single regex pass.
 
-const ANSI_PATTERN =
-  // \u001B (ESC) followed by [ or ], then control sequence
-  // Handles CSI (e.g., \x1b[31m) and OSC (e.g., \x1b]8;;url\x07)
-  /[\u001B\u009B][[\]()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g;
+// Unwrap OSC 8 hyperlinks: \x1B]8;...;<url>\x07TEXT\x1B]8;...;\x07  ->  TEXT
+const OSC8_LINK = /\x1B\]8;[^;]*;[^\x07\x1B]*\x07([\s\S]*?)\x1B\]8;[^;]*;\x07/g;
 
-/**
- * stripAnsi
- * Removes ANSI escape sequences (color, cursor, etc.) from text.
- * @param {string} input
- * @returns {string}
- */
+// Any other OSC: \x1B] ... (ST = BEL or ESC\)
+const OSC_ANY   = /\x1B\][^\x07\x1B]*(?:\x07|\x1B\\)/g;
+
+// CSI control sequences: \x1B[ ... final byte @-~
+const CSI       = /\x1B\[[0-?]*[ -/]*[@-~]/g;
+const CSI_C1    = /\u009B[0-?]*[ -/]*[@-~]/g; // single-byte C1 CSI
+
+// DCS/SOS/PM/APC blocks using ST (BEL or ESC\)
+const DCS_SOS_PM_APC = /\x1B(?:P|X|\^|_)[^\x07\x1B]*(?:\x07|\x1B\\)/g;
+
 export function stripAnsi(input) {
   if (input == null) return '';
-  return String(input).replace(ANSI_PATTERN, '');
+  let s = String(input);
+
+  // 1) unwrap links to keep human text
+  s = s.replace(OSC8_LINK, '$1');
+
+  // 2) drop remaining control sequences
+  s = s.replace(OSC_ANY, '');
+  s = s.replace(DCS_SOS_PM_APC, '');
+  s = s.replace(CSI, '');
+  s = s.replace(CSI_C1, '');
+
+  return s;
 }
 
-/**
- * hasAnsi
- * Detect if a string contains ANSI escape sequences.
- * @param {string} input
- * @returns {boolean}
- */
 export function hasAnsi(input) {
-  return ANSI_PATTERN.test(String(input || ''));
+  const str = String(input || '');
+  return (
+    OSC8_LINK.test(str) ||
+    OSC_ANY.test(str) ||
+    DCS_SOS_PM_APC.test(str) ||
+    CSI.test(str) ||
+    CSI_C1.test(str)
+  );
 }
-
-/**
- * safeLog
- * Strips ANSI before logging (optional helper).
- * @param {any} value
- * @returns {void}
- */
-export function safeLog(value) {
-  console.log(stripAnsi(String(value)));
-}
-
-export default { stripAnsi, hasAnsi, safeLog };
