@@ -61,14 +61,22 @@ export function minifyHTML(input, opts = {}) {
     }
 
     if (cfg.collapseWhitespace) {
-      // 1) Collapse runs globally (safe outside preserve tags)
-      chunk = chunk.replace(/\s{2,}/g, ' ');
-      // 2) Keep ONE space between adjacent tags to preserve inline gaps
-      chunk = chunk.replace(/>\s+</g, '> <');
-      // 3) Trim text-node edges (space right after '>' or right before '<')
+      const INLINE = /^(a|abbr|b|bdi|bdo|cite|code|data|dfn|em|i|kbd|label|mark|q|rp|rt|rtc|ruby|s|samp|small|span|strong|sub|sup|time|u|var)$/i;
+    
+      // 1) remove all inter-tag whitespace
+      chunk = chunk.replace(/>\s+</g, '><');
+    
+      // 2) reinsert ONE space only when both adjacent tags are inline-level
+      chunk = chunk.replace(
+        /(>)(<\/?([A-Za-z][^\s/>]*)\b[^>]*>)(<\/?([A-Za-z][^\s/>]*)\b[^>]*>)/g,
+        (m, gt, t1, n1, t2, n2) => (INLINE.test(n1) && INLINE.test(n2)) ? `${gt}${t1} ${t2}` : `${gt}${t1}${t2}`
+      );
+    
+      // 3) trim text-node edges
       chunk = chunk.replace(/>\s+([^\s<])/g, '>$1');
       chunk = chunk.replace(/([^\s>])\s+</g, '$1<');
-      // 4) Trim start/end
+    
+      // 4) trim start/end
       chunk = chunk.replace(/^\s+|\s+$/g, '');
     }
 
