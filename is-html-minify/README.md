@@ -1,6 +1,6 @@
 # is-html-minify
 
-[![html gzip](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/metrics/html.js.json)](./metrics/html.js.json)  
+[![html gzip](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/metrics/html.js.json)](./metrics/html.js.json) 
 [![html ops/s](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/bench/html.json)](./bench/html.json)
 
 Safe, dependency-free HTML minifier.  
