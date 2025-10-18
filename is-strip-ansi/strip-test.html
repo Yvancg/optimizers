@@ -30,7 +30,8 @@
     <div class="row">
       <section class="card">
         <label>Input (may contain ANSI escape codes)</label>
-        <textarea id="input" placeholder="Paste text with ANSI codes here"></textarea>
+        <textarea id="input" placeholder="Paste text with ANSI codes here"
+          spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off"></textarea>
 
         <div class="controls">
           <button id="btn-strip" class="btn">Strip</button>
@@ -43,7 +44,8 @@
 
       <section class="card">
         <label>Output (ANSI removed)</label>
-        <textarea id="output" placeholder="Result will appear here" readonly></textarea>
+        <textarea id="output" placeholder="Result will appear here" readonly
+          spellcheck="false" wrap="off"></textarea>
         <div class="controls">
           <button id="btn-copy" class="btn alt">Copy</button>
           <button id="btn-download" class="btn alt">Download</button>
@@ -101,11 +103,15 @@
       inEl.value = SAMPLE;
       updateStats(inEl.value, outEl.value);
     });
-    $('btn-copy').addEventListener('click', async () => {
-      try { await navigator.clipboard.writeText(outEl.value || ''); } catch {}
+     $('btn-copy').addEventListener('click', async () => {
+      const v = outEl.value || '';
+      if (!v) return;
+      try { await navigator.clipboard.writeText(v); } catch {}
     });
     $('btn-download').addEventListener('click', () => {
-      const blob = new Blob([outEl.value || ''], { type: 'text/plain' });
+      const v = outEl.value || '';
+      if (!v) return;
+      const blob = new Blob([v], { type: 'text/plain' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
       a.download = 'stripped.txt';
