@@ -54,7 +54,7 @@ console.log(stats);
 ```
 
 ***Output***
-```js
+```txt
 You are a helpful AI assistant.
 summarize the following text clearly.
 It should also normalize newlines and trim output.
