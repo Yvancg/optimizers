@@ -61,13 +61,15 @@ export function minifyHTML(input, opts = {}) {
     }
 
     if (cfg.collapseWhitespace) {
-      // Collapse whitespace between tags and around text nodes, but not inside words
-      // Convert sequences like ">   <" to "><"
-      chunk = chunk.replace(/>\s+</g, '><');
-      // Collapse leading/trailing whitespace
-      chunk = chunk.replace(/^\s+|\s+$/g, '');
-      // Collapse runs of spaces and newlines to a single space
+      // 1) Collapse runs globally (safe outside preserve tags)
       chunk = chunk.replace(/\s{2,}/g, ' ');
+      // 2) Keep ONE space between adjacent tags to preserve inline gaps
+      chunk = chunk.replace(/>\s+</g, '> <');
+      // 3) Trim text-node edges (space right after '>' or right before '<')
+      chunk = chunk.replace(/>\s+([^\s<])/g, '>$1');
+      chunk = chunk.replace(/([^\s>])\s+</g, '$1<');
+      // 4) Trim start/end
+      chunk = chunk.replace(/^\s+|\s+$/g, '');
     }
 
     s.text = chunk;
