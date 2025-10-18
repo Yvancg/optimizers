@@ -13,7 +13,7 @@ Useful for cleaning log output or user-supplied console text before display or s
 ANSI codes are useful for terminal color and formatting, but they can:
 - pollute stored logs,
 - break HTML output,
-- or inject misleading console artifacts.
+- or inject misleading console artifacts.  
 `is-strip-ansi` provides a minimal, dependency-free, and deterministic way to remove them.
 	•	One-pass regex — fast and O(n)
 	•	Works in browsers, Node, and edge runtimes
