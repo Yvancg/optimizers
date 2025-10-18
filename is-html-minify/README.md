@@ -1,103 +1,156 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <title>HTML Minifier — is-html-minify</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    :root { --fg:#0b0b0c; --bg:#f8fafc; --border:#e5e7eb; --muted:#6b7280; }
-    body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; margin:0; background:var(--bg); color:var(--fg); }
-    header { padding:18px 20px; background:#fff; border-bottom:1px solid var(--border); }
-    main { max-width:900px; margin:24px auto; padding:0 16px 48px; }
-    h1 { margin:0; font-size:20px; }
-    .card { background:#fff; border:1px solid var(--border); border-radius:12px; padding:16px; margin-top:16px; }
-    .row { display:grid; grid-template-columns: minmax(320px,1fr) minmax(320px,1fr); gap:12px; }
-    label { display:block; margin:0 0 6px; font-size:13px; color:#111827; }
-    textarea, pre { width:100%; box-sizing:border-box; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size:13px; line-height:1.4; }
-    textarea { height: 260px; padding:10px; border:1px solid var(--border); border-radius:10px; background:#fff; resize:vertical; }
-    pre { background:#f9fafb; padding:10px; border-radius:10px; overflow:auto; min-height:260px; border:1px solid var(--border); margin:0; white-space:pre; }
-    .controls { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; align-items:center; }
-    .btn { padding:10px 14px; border:1px solid var(--border); background:#111827; color:#fff; border-radius:10px; cursor:pointer; font-size:14px; }
-    .btn.alt { background:#fff; color:#111827; }
-    .muted { color:var(--muted); font-size:12px; }
-    label.opt { display:flex; align-items:center; gap:6px; font-size:13px; }
-    footer { margin-top:32px; font-size:12px; color:var(--muted); }
-    @media (max-width:720px){ .row { grid-template-columns: 1fr; } }
-  </style>
-</head>
-<body>
-  <header>
-    <h1>HTML Minifier — <code>is-html-minify/html.js</code></h1>
-  </header>
-  <main>
-    <div class="card">
-      <div class="row">
-        <div>
-          <label for="inp">Input</label>
-          <textarea id="inp"><!-- comment -->
+# is-html-minify
+
+[![html gzip](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/metrics/html.js.json)](./metrics/html.js.json)  
+[![html ops/s](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/bench/html.json)](./bench/html.json)
+
+Safe, dependency-free HTML minifier.  
+Removes comments and collapses whitespace while preserving `<pre>`, `<textarea>`, `<script>`, and `<style>` content.
+
+---
+
+## 🚀 Why
+
+Most HTML minifiers are large, unsafe, or over-optimized.  
+`is-html-minify` is minimal, deterministic, and written for runtime safety.
+
+- No AST parsing or rewriting of HTML structure  
+- Preserves formatting inside code-sensitive tags  
+- Guaranteed valid output for any compliant browser or parser  
+- Ideal for edge rendering, CMS pipelines, and in-browser transforms  
+
+---
+
+## 🌟 Features
+
+- ✅ Removes HTML comments safely  
+- ✅ Collapses whitespace between tags and attributes  
+- ✅ Keeps `<pre>`, `<textarea>`, `<script>`, and `<style>` intact  
+- ✅ No dependencies, no build step  
+- ✅ Works in browser, Node.js, and edge runtimes  
+
+---
+
+## 📦 Usage
+
+```js
+import { minifyHTML } from './html.js';
+
+const html = `
+<!-- comment -->
 <div class="box">
   <p> Hello   world </p>
   <pre>   keep   whitespace   here   </pre>
-  <script>  // keep formatting
-  const x =  1 + 2
-  </script>
+  <script> const x =  1 + 2 </script>
+</div>
+`;
+
+console.log(minifyHTML(html));
+// <div class="box"><p>Hello world</p> <pre>   keep   whitespace   here   </pre> <script> const x =  1 + 2 </script></div>
+```
+
+---
+
+## 🧠 API
+
+```ts
+minifyHTML(input: string, opts?: {
+  removeComments?: boolean;          // default true
+  collapseWhitespace?: boolean;      // default true
+  trimAttrWhitespace?: boolean;      // default true
+  removeEmptyAttributes?: boolean;   // default false
+  booleanAttrShortening?: boolean;   // reserved (no-op by default)
+}): string
+```
+
+---
+
+## 🧪 Example (`html-test.html`)
+
+```html
+<!doctype html>
+<html>
+  <body>
+    <main>
+      <textarea id="src"><!-- comment -->
+<div class="demo">
+  <p> Hello   world </p>
+  <pre> keep   this </pre>
 </div></textarea>
-        </div>
-        <div>
-          <label for="out">Output</label>
-          <pre id="out">Run a minification.</pre>
-        </div>
-      </div>
-
-      <div class="controls">
-        <button id="btn-minify" class="btn">Minify</button>
-        <button id="btn-clear" class="btn alt">Clear</button>
-        <button id="btn-copy" class="btn alt">Copy</button>
-        <button id="btn-download" class="btn alt">Download .html</button>
-        <span class="muted">Options:</span>
-        <label class="opt"><input type="checkbox" id="opt-comments" checked> remove comments</label>
-        <label class="opt"><input type="checkbox" id="opt-whitespace" checked> collapse whitespace</label>
-        <label class="opt"><input type="checkbox" id="opt-trim-attr" checked> trim attribute whitespace</label>
-        <label class="opt"><input type="checkbox" id="opt-empty-attr"> remove empty attributes</label>
-      </div>
-    </div>
-
-    <footer>
-      Generated: <span id="today"></span> — Compatible with <code>is-html-minify/html.js</code>
-    </footer>
-  </main>
-
-  <script type="module">
-    import { minifyHTML } from './html.js';
-    const $ = id => document.getElementById(id);
-    $('today').textContent = new Date().toISOString().slice(0,10);
-
-    $('btn-minify').addEventListener('click', run);
-    $('btn-clear').addEventListener('click', () => { $('inp').value = ''; setOut('Cleared.'); });
-    $('btn-copy').addEventListener('click', async () => {
-      try { await navigator.clipboard.writeText($('out').textContent); } catch {}
-    });
-    $('btn-download').addEventListener('click', () => {
-      const blob = new Blob([$('out').textContent], { type: 'text/html;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = 'minified.html';
-      document.body.appendChild(a); a.click(); a.remove();
-      URL.revokeObjectURL(url);
-    });
-
-    function opts() {
-      return {
-        removeComments: $('opt-comments').checked,
-        collapseWhitespace: $('opt-whitespace').checked,
-        trimAttrWhitespace: $('opt-trim-attr').checked,
-        removeEmptyAttributes: $('opt-empty-attr').checked
-      };
-    }
-    function setOut(text) { $('out').textContent = text; }
-    function run() { setOut(minifyHTML($('inp').value, opts())); }
-
-    run();
-  </script>
-</body>
+      <button id="btn">Minify</button>
+      <pre id="out"></pre>
+    </main>
+    <script type="module">
+      import { minifyHTML } from './html.js';
+      const $ = id => document.getElementById(id);
+      $('btn').addEventListener('click', () => {
+        $('out').textContent = minifyHTML($('src').value);
+      });
+    </script>
+  </body>
 </html>
+```
+
+---
+
+## 🧪 Browser test
+
+Clone the repo and open  
+[`html Minify Test`](https://yvancg.github.io/optimizers/is-html-minify/html-test.html)  
+for an interactive in-browser demo.
+
+---
+
+## 🛠 Development
+
+This module is fully standalone.  
+Copy `html.js` into any project — no build or install needed.
+
+### Node CLI one-liners
+
+```bash
+node is-html-minify/html.js < input.html > output.html
+```
+
+---
+
+## 🪪 License
+
+MIT License  
+
+Copyright (c) 2025 **Y Consulting LLC**
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the “Software”), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,  
+DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,  
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+---
+
+## ❤️ Support the project
+
+If this library helped you, consider sponsoring its maintenance.
+
+### GitHub Sponsors  
+[👉 Sponsor on GitHub](https://github.com/sponsors/yvancg)
+
+### Buy Me a Coffee  
+[☕ Support via BuyMeACoffee](https://buymeacoffee.com/yconsulting)
+
+### Direct Contribution  
+[💸 Pay via Wise](https://wise.com/pay/me/yvanc7)
+
+---
+
+**Project:** [Optimizers](https://github.com/Yvancg/optimizers) · Safe & fast code utilities
