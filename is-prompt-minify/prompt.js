@@ -38,8 +38,8 @@ function estimateTokens(s) {
 }
 
 function removeNoise(text) {
-  let t = text;
-  for (const re of NOISE_PATTERNS) t = t.replace(re, '');
+  let t = text.replace(/\u00A0/g, ' ');
+  for (const re of NOISE_PATTERNS) t = t.replace(re, ' ');
   // collapse leftover “double spaces” from removals
   t = t.replace(MULTISPACE, ' ');
   // clean lines that became mostly punctuation/spaces
@@ -75,7 +75,7 @@ export function promptMinify(input, opts = {}) {
 export function optimizePrompt(input, opts = {}) {
   const cfg = {
     trim: true,
-    minGainPct: 5,   // stop if token savings < 5%
+    minGainPct: 0,   // stop if token savings < 5%
     noise: true,
     ...opts
   };
