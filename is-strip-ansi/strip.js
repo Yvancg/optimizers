@@ -3,31 +3,33 @@
 // Security: pure string processing; no eval; safe for untrusted logs.
 // Perf: O(n) single regex pass.
 
-// Unwrap OSC 8 hyperlinks: \x1B]8;...;<url>\x07TEXT\x1B]8;...;\x07  ->  TEXT
-const OSC8_LINK = /\x1B\]8;[^;]*;[^\x07\x1B]*\x07([\s\S]*?)\x1B\]8;[^;]*;\x07/g;
+// 1) Unwrap OSC-8 hyperlinks: ESC ] 8 ; params ; URL ST  TEXT  ESC ] 8 ; params ; ST  → TEXT
+const OSC8_LINK = /\x1B\]8;[^\x07\x1B]*;[^\x07\x1B]*?(?:\x07|\x1B\\)([\s\S]*?)\x1B\]8;[^\x07\x1B]*;(?:\x07|\x1B\\)/g;
 
-// Any other OSC: \x1B] ... (ST = BEL or ESC\)
-const OSC_ANY   = /\x1B\][^\x07\x1B]*(?:\x07|\x1B\\)/g;
+// 2) Any OSC block (non-greedy, ST = BEL or ESC\)
+const OSC_ANY = /\x1B\][\s\S]*?(?:\x07|\x1B\\)/g;
 
-// CSI control sequences: \x1B[ ... final byte @-~
-const CSI       = /\x1B\[[0-?]*[ -/]*[@-~]/g;
-const CSI_C1    = /\u009B[0-?]*[ -/]*[@-~]/g; // single-byte C1 CSI
+// 3) DCS/SOS/PM/APC blocks using ST
+const DCS_SOS_PM_APC = /\x1B(?:P|X|\^|_)[\s\S]*?(?:\x07|\x1B\\)/g;
 
-// DCS/SOS/PM/APC blocks using ST (BEL or ESC\)
-const DCS_SOS_PM_APC = /\x1B(?:P|X|\^|_)[^\x07\x1B]*(?:\x07|\x1B\\)/g;
+// 4) CSI (ESC[ … or C1 0x9B …)
+const CSI = /(?:\x1B\[|\u009B)[0-?]*[ -/]*[@-~]/g;
+
+// 5) Residual C0 controls except \n\r\t
+const C0 = /[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g;
 
 export function stripAnsi(input) {
   if (input == null) return '';
   let s = String(input);
 
-  // 1) unwrap links to keep human text
+  // unwrap links first so we keep the visible text
   s = s.replace(OSC8_LINK, '$1');
 
-  // 2) drop remaining control sequences
+  // drop remaining control sequences
   s = s.replace(OSC_ANY, '');
   s = s.replace(DCS_SOS_PM_APC, '');
   s = s.replace(CSI, '');
-  s = s.replace(CSI_C1, '');
+  s = s.replace(C0, '');
 
   return s;
 }
@@ -35,10 +37,7 @@ export function stripAnsi(input) {
 export function hasAnsi(input) {
   const str = String(input || '');
   return (
-    OSC8_LINK.test(str) ||
-    OSC_ANY.test(str) ||
-    DCS_SOS_PM_APC.test(str) ||
-    CSI.test(str) ||
-    CSI_C1.test(str)
+    OSC8_LINK.test(str) || OSC_ANY.test(str) ||
+    DCS_SOS_PM_APC.test(str) || CSI.test(str) || C0.test(str)
   );
 }
