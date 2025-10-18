@@ -1,0 +1,37 @@
+<!doctype html>
+<meta charset="utf-8"/>
+<title>is-html-minify demo</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 840px; margin: 24px auto; }
+  textarea, pre { width: 100%; box-sizing: border-box; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  textarea { height: 180px; padding: 10px; }
+  .btn { padding: 8px 12px; border: 1px solid #e5e7eb; background: #111827; color: #fff; border-radius: 8px; cursor: pointer; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+</style>
+<h1>is-html-minify</h1>
+<div class="row">
+  <div>
+    <h3>Input</h3>
+    <textarea id="inp"><!-- comment -->
+<div class="box">
+  <p> Hello   world </p>
+  <pre>   keep   whitespace   here   </pre>
+  <script>  // keep formatting
+  const x =  1 + 2
+  </script>
+</div></textarea>
+  </div>
+  <div>
+    <h3>Output</h3>
+    <pre id="out">…</pre>
+  </div>
+</div>
+<p><button class="btn" id="btn">Minify</button></p>
+<script type="module">
+  import { minifyHTML } from './html.js';
+  const $ = id => document.getElementById(id);
+  $('btn').addEventListener('click', () => {
+    const res = minifyHTML($('inp').value);
+    $('out').textContent = res;
+  });
+</script>
