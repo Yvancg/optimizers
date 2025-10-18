@@ -1,8 +1,9 @@
-import { writeFileSync } 		from 'node:fs';
-import { performance }   		from 'node:perf_hooks';
+import { writeFileSync } 		  from 'node:fs';
+import { performance }   		  from 'node:perf_hooks';
 
 // --- Import targets explicitly to avoid discovery misses ---
 import { minifyJS }     			from '../is-minify/minify.js';
+import { stripAnsi }          from '../is-strip-ansi/strip.js';
 
 function bench(fn, input, iters) {
   // warmup
@@ -15,7 +16,8 @@ function bench(fn, input, iters) {
 }
 
 const targets = [
-  { name: 'minify', fn: () => minifyJS('function x(){return 42}/*c*/'),         iters: 2000 },
+  { name: 'minify', fn: () => minifyJS('function x(){return 42}/*c*/'),             iters: 2000 },
+  { name: 'strip', fn: () => stripAnsi('\u001B[31mError:\u001B[0m invalid token'),  iters: 12000 },
 ];
 
 let wrote = 0;
