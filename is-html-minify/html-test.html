@@ -15,7 +15,7 @@
     label { display:block; margin:0 0 6px; font-size:13px; color:#111827; }
     textarea, pre { width:100%; box-sizing:border-box; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size:13px; line-height:1.4; }
     textarea { height: 260px; padding:10px; border:1px solid var(--border); border-radius:10px; background:#fff; resize:vertical; }
-    pre { background:#f9fafb; padding:10px; border-radius:10px; overflow:auto; min-height:260px; border:1px solid var(--border); margin:0; white-space:pre; }
+    pre { background:#f9fafb; padding:10px; border-radius:10px; overflow:auto; min-height:260px; border:1px solid var(--border); margin:0; white-space:pre-wrap; word-break:break-word; overflow-wrap:anywhere; }
     .controls { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; align-items:center; }
     .btn { padding:10px 14px; border:1px solid var(--border); background:#111827; color:#fff; border-radius:10px; cursor:pointer; font-size:14px; }
     .btn.alt { background:#fff; color:#111827; }
@@ -54,6 +54,7 @@
         <button id="btn-clear" class="btn alt">Clear</button>
         <button id="btn-copy" class="btn alt">Copy</button>
         <button id="btn-download" class="btn alt">Download .html</button>
+        <br>
         <span class="muted">Options:</span>
         <label class="opt"><input type="checkbox" id="opt-comments" checked> remove comments</label>
         <label class="opt"><input type="checkbox" id="opt-whitespace" checked> collapse whitespace</label>
@@ -85,7 +86,7 @@
       document.body.appendChild(a); a.click(); a.remove();
       URL.revokeObjectURL(url);
     });
-
+ 
     function opts() {
       return {
         removeComments: $('opt-comments').checked,
