@@ -132,3 +132,11 @@ export function optimizePrompt(input, opts = {}) {
     }
   };
 }
+
+export function promptDiff(before, after) {
+  const enc = s => new TextEncoder().encode(String(s)).length;
+  const b = enc(before);
+  const a = enc(after);
+  const savedPct = b ? Math.max(0, ((b - a) / b) * 100).toFixed(1) : '0.0';
+  return { before: b, after: a, savedPct };
+}
