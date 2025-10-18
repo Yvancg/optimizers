@@ -17,6 +17,11 @@ Available modules:
   [![strip gzip](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/metrics/strip.js.json)](./metrics/strip.js.json)
   [![strip ops/s](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/bench/strip.json)](./bench/strip.json)
 
+- **is-prompt-minify** — Compact large language model (LLM) prompts by removing redundancy, extra whitespace, and repeated phrases without altering meaning.  
+  [![prompt gzip](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/metrics/prompt.js.json)](./metrics/prompt.js.json)
+  [![prompt ops/s](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/bench/prompt.json)](./bench/prompt.json)
+
+
 All helpers are designed for use in:
 - Browsers (ESM)
 - Node.js / Deno / Bun
@@ -30,6 +35,7 @@ You can try each validator interactively in your browser:
 
 - [Minification Test](https://yvancg.github.io/optimizers/is-minify/minify-test.html)
 - [Strip ANSI Test](https://yvancg.github.io/optimizers/is-strip-ansi/strip-test.html)
+- [Prompt Minify Test](https://yvancg.github.io/optimizers/is-prompt-minify/prompt-test.html)
 
 Each page loads its respective module and allows interactive validation.
 
@@ -59,6 +65,7 @@ npm i @yvancg/optimizers
 ```js
 import { minifyJS, minifyCSS } from './is-minify/minify.js';
 import { stripAnsi } from './is-strip-ansi/strip.js';
+import { promptMinify } from './is-prompt-minify/prompt.js';
 
 console.log(minifyJS('function x () { return 1 + 2 ; }'));
 // → 'function x(){return 1+2;}'
@@ -68,6 +75,9 @@ console.log(minifyCSS('body { color : red ; }'));
 
 console.log(stripAnsi('\u001B[31mError:\u001B[0m invalid token'));
 // → 'Error: invalid token'
+
+console.log(promptMinify('You are a helpful helpful AI assistant. Please please respond clearly clearly.'));
+// → 'You are a helpful AI assistant. Please respond clearly.'
 ```
 
 ## Folder Structure
@@ -80,6 +90,7 @@ validators/
   ├─ README.md
   ├─ SECURITY.md
   ├─ is-minify/
+  ├─ is-prompt-minify/
   ├─ is-strip-ansi/
   ├─ bench/
   └─ metrics/
