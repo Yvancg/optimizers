@@ -3,76 +3,59 @@
 [![prompt gzip](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/metrics/prompt.js.json)](./metrics/prompt.js.json)
 [![prompt ops/s](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/bench/prompt.json)](./bench/prompt.json)
 
-**Tiny, dependency-free minifier for JavaScript and CSS.**  
-One file. ESM. Works in browser and Node.
+Compact large language model (LLM) prompts by removing redundancy, normalizing whitespace, and trimming excess formatting — without changing meaning.
 
 ---
 
 ## 🚀 Why
 
-Most minifiers are over-engineered, depend on heavy parsers, or risk breaking code through unsafe rewrites.
-`is-minify` takes the opposite approach: it’s small, transparent, and deterministic.
-	•	It avoids AST parsing and complex optimizations that can introduce subtle bugs.
-	•	It guarantees that every output can still be parsed by any compliant JS or CSS engine.
-	•	It’s ideal for quick in-browser transformations, form submissions, or server-side sanitization.
+Prompt tokens are expensive.  
+Every redundant space, newline, or repeated word wastes compute and cost.  
+`is-prompt-minify` provides a lightweight, deterministic way to shrink text before sending it to an AI API.
+
+- Removes duplicated words and blank lines  
+- Collapses multi-space sequences  
+- Normalizes newlines  
+- Reduces token count and improves model throughput 
 
 ---
 
 ## 🌟 Features
 
-- ✅ JS and CSS modes in one module  
-- ✅ Safe comment stripping and whitespace collapse  
-- ✅ No AST, no build step, no dependencies  
-- ✅ Works in browser, Node.js, and edge runtimes  
+- ✅ Zero dependencies  
+- ✅ O(n) performance  
+- ✅ Works in browser, Node, and edge runtimes  
+- ✅ Safe for untrusted input (pure string ops)  
 
 ---
 
 ## 📦 Usage
 
 ```js
-import { minify, minifyJS, minifyCSS } from './minify.js';
+import { promptMinify, promptDiff } from './is-prompt-minify/prompt.js';
 
-// JavaScript
-const js = `
-function greet (name) {
-  const msg = \`Hello, \${name}!\`; // inline
-  return msg;
-}
+const text = `
+  You are a helpful helpful AI assistant.
+
+  Please please summarize the following following text clearly clearly.
 `;
-console.log(minifyJS(js));
 
-// CSS
-const css = `
-/* button */
-.btn {
-  color: #fff !important ;
-  background : #111827 ;
-}
-`;
-console.log(minifyCSS(css));
+const minified = promptMinify(text);
+console.log(minified);
+// "You are a helpful AI assistant.\n\nPlease summarize the following text clearly."
 
-// Generic entry point
-console.log(minify(js, 'js'));
-console.log(minify(css, 'css'));
+console.log(promptDiff(text, minified));
+// { before: 120, after: 92, savedPct: 23.3 }
 ```
 
 ---
 
 ## 🧠 API
 
-### `minify(source: string, kind: 'js' | 'css'): string`
-
-Unified entry. Routes to the right minifier.
-
-### `minifyJS(source: string): string`
-
-Conservative JS minifier.  
-Handles `//` and `/*...*/` comments, strings, template literals, and regex literals.
-
-### `minifyCSS(source: string): string`
-
-Conservative CSS minifier.  
-Strips `/*...*/` comments, collapses whitespace, and tightens `: ; { } , > + ~ =`.
+```ts
+promptMinify(input: string, opts?: { trim?: boolean }): string
+promptDiff(input: string, output: string): { before: number; after: number; savedPct: number }
+```
 
 ---
 
@@ -83,11 +66,18 @@ Strips `/*...*/` comments, collapses whitespace, and tightens `: ; { } , > + ~ =
 <html>
   <body>
     <script type="module">
-      import { minifyJS, minifyCSS } from './minify.js';
-      console.log(minifyJS(`function x () { // hi
-        return 1 + 2 ;
-      }`));
-      console.log(minifyCSS(`body { color : red ; } /* c */`));
+      import { promptMinify, promptDiff } from './prompt.js';
+
+      const text = `
+        You are a helpful helpful AI assistant.
+        Please please summarize the following following text clearly clearly.
+      `;
+
+      const minified = promptMinify(text);
+      console.log(minified);
+
+      const stats = promptDiff(text, minified);
+      console.log(stats); // { before: X, after: Y, savedPct: Z }
     </script>
   </body>
 </html>
@@ -97,14 +87,14 @@ Strips `/*...*/` comments, collapses whitespace, and tightens `: ; { } , > + ~ =
 
 ## 🧪 Browser test
 
-Clone the repo, open `minify-test.html` — interactive test in your browser  
-or click 👉🏻 [Minification Test](https://yvancg.github.io/optimizers/is-minify/minify-test.html)
+Clone the repo, open `prompt-test.html` — interactive test in your browser  
+or click 👉🏻 [Prompt Minification Test](https://yvancg.github.io/optimizers/is-prompt-minify/prompt-test.html)
 
 ---
 
 ## 🛠 Development
 
-This module is standalone. You can copy `minify.js` into your own project.  
+This module is standalone. You can copy `prompt.js` into your own project.  
 No `npm install` or build step required.
 
 ### Node one-liners
