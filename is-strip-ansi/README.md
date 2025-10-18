@@ -10,11 +10,14 @@ Useful for cleaning log output or user-supplied console text before display or s
 
 ## 🚀 Why
 
-Most minifiers are over-engineered, depend on heavy parsers, or risk breaking code through unsafe rewrites.
-`is-minify` takes the opposite approach: it’s small, transparent, and deterministic.
-	•	It avoids AST parsing and complex optimizations that can introduce subtle bugs.
-	•	It guarantees that every output can still be parsed by any compliant JS or CSS engine.
-	•	It’s ideal for quick in-browser transformations, form submissions, or server-side sanitization.
+ANSI codes are useful for terminal color and formatting, but they can:
+- pollute stored logs,
+- break HTML output,
+- or inject misleading console artifacts.
+`is-strip-ansi` provides a minimal, dependency-free, and deterministic way to remove them.
+	•	One-pass regex — fast and O(n)
+	•	Works in browsers, Node, and edge runtimes
+	•	Safe for untrusted input
 
 ---
 
@@ -56,11 +59,10 @@ safeLog(value: any): void
 <html>
   <body>
     <script type="module">
-      import { minifyJS, minifyCSS } from './minify.js';
-      console.log(minifyJS(`function x () { // hi
-        return 1 + 2 ;
-      }`));
-      console.log(minifyCSS(`body { color : red ; } /* c */`));
+      import { stripAnsi } from './strip.js';
+
+      const text = '\u001b[1m\u001b[31mError:\u001b[0m invalid token';
+      console.log(stripAnsi(text)); // "Error: invalid token"
     </script>
   </body>
 </html>
