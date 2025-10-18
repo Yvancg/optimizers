@@ -94,7 +94,7 @@ minifyHTML(input: string, opts?: {
 
 ## 🧪 Browser test
 
-Clone the repo, open `html-test.html` — interactive test in your browser
+Clone the repo, open `html-test.html` — interactive test in your browser  
 or click 👉🏻 
 [`html Minify Test`](https://yvancg.github.io/optimizers/is-html-minify/html-test.html)  
 
