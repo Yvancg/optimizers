@@ -23,12 +23,12 @@
   <main>
     <section class="card">
       <label for="input">Prompt Input</label>
-      <textarea id="input" placeholder="Paste a long prompt..."></textarea>
+      <textarea id="input" placeholder="Paste a long prompt..." spellcheck="false"></textarea>
 
       <div class="controls">
-        <button id="btn-run" class="btn">Minify</button>
-        <button id="btn-clear" class="btn alt">Clear</button>
-        <button id="btn-sample" class="btn alt">Sample Prompt</button>
+        <button id="btn-run"  class="btn"      type="button">Minify</button>
+        <button id="btn-clear"class="btn alt"  type="button">Clear</button>
+        <button id="btn-sample"class="btn alt" type="button">Sample Prompt</button>
       </div>
 
       <div class="stats" id="stats"></div>
@@ -36,7 +36,7 @@
 
     <section class="card">
       <label for="output">Minified Output</label>
-      <textarea id="output" readonly></textarea>
+      <textarea id="output" readonly spellcheck="false"></textarea>
     </section>
 
     <footer style="font-size:12px;color:var(--muted);">
@@ -46,25 +46,24 @@
 
   <script type="module">
     import { promptMinify, promptDiff } from './prompt.js';
+
     const $ = id => document.getElementById(id);
     $('today').textContent = new Date().toISOString().slice(0,10);
 
-    const SAMPLE = `
-      You are a helpful helpful AI assistant.
-      Please please summarize the following following text clearly clearly.
+    const SAMPLE = `You are a helpful helpful AI assistant.
 
-      This this example example includes includes repeated repeated words words and  extra   spaces.
+Please please summarize the following following text clearly clearly.
 
+This this example example includes includes repeated repeated words words and  extra   spaces.
 
-      It should also also normalize newlines and trim trim output.
-    `;
+It should also also normalize newlines and trim trim output.`;
 
     function run() {
-      const input = $('input').value;
+      const input = $('input').value || '';
       const output = promptMinify(input);
       $('output').value = output;
       const { before, after, savedPct } = promptDiff(input, output);
-      $('stats').textContent = \`Input: \${before} bytes → Output: \${after} bytes (saved \${savedPct}% )\`;
+      $('stats').textContent = `Input: ${before} bytes → Output: ${after} bytes (saved ${savedPct}% )`;
     }
 
     $('btn-run').addEventListener('click', run);
@@ -74,9 +73,12 @@
       $('stats').textContent = '';
     });
     $('btn-sample').addEventListener('click', () => {
-      $('input').value = SAMPLE.trim();
-      $('stats').textContent = '';
+      $('input').value = SAMPLE;
+      run();
     });
+
+    // Initial content so Minify does something on first click
+    $('input').value = SAMPLE;
   </script>
 </body>
 </html>
