@@ -3,7 +3,8 @@
 [![prompt gzip](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/metrics/prompt.js.json)](./metrics/prompt.js.json)
 [![prompt ops/s](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/bench/prompt.json)](./bench/prompt.json)
 
-Compact large language model (LLM) prompts by removing redundancy, normalizing whitespace, and trimming excess formatting — without changing meaning.
+Compact and normalize long LLM prompts by removing redundant words, formatting noise, and filler phrases such as “please” or “as an AI language model.”
+Designed for pre-processing prompts before sending them to language models, to reduce token count while preserving semantics.
 
 ---
 
@@ -16,45 +17,83 @@ Every redundant space, newline, or repeated word wastes compute and cost.
 - Removes duplicated words and blank lines  
 - Collapses multi-space sequences  
 - Normalizes newlines  
-- Reduces token count and improves model throughput 
+- Cleans boilerplate (e.g., “please”, “as an AI language model”, “make sure to”).
+- Optionally skips minor edits if compression gain is negligible.
+- Reduces token count and improves model throughput
 
 ---
 
 ## 🌟 Features
 
-- ✅ Zero dependencies  
-- ✅ O(n) performance  
-- ✅ Works in browser, Node, and edge runtimes  
-- ✅ Safe for untrusted input (pure string ops)  
+- ✅ Drop-in minifier for LLM prompts.
+- ✅ Noise-phrase and filler removal.
+- ✅ Token-aware: skips edits with negligible savings.
+- ✅ Zero dependencies.
+- ✅ O(n) runtime.
 
 ---
 
 ## 📦 Usage
 
+***Input***
 ```js
-import { promptMinify, promptDiff } from './is-prompt-minify/prompt.js';
+import { optimizePrompt } from './is-prompt-minify/prompt.js';
 
 const text = `
-  You are a helpful helpful AI assistant.
+You are a helpful helpful AI assistant.
 
-  Please please summarize the following following text clearly clearly.
+Please please summarize the following following text clearly clearly.
+
+It should also also normalize newlines and trim trim output.
 `;
 
-const minified = promptMinify(text);
-console.log(minified);
-// "You are a helpful AI assistant.\n\nPlease summarize the following text clearly."
+const { optimized, stats } = optimizePrompt(text, { minGainPct: 0, noise: true });
 
-console.log(promptDiff(text, minified));
-// { before: 120, after: 92, savedPct: 23.3 }
+console.log(optimized);
+console.log(stats);
+```
+
+***Output***
+```js
+You are a helpful AI assistant.
+summarize the following text clearly.
+It should also normalize newlines and trim output.
 ```
 
 ---
 
 ## 🧠 API
 
+### `promptMinify(input: string, opts?) → string`
+Performs base structural cleanup.  
+Collapses multiple spaces, repeated words, and triple newlines.
+
+---
+
+### `optimizePrompt(input: string, opts?) → { optimized, stats }`
+Advanced mode with noise filtering and token-based threshold.
+
+**Options:**
+
+| Option | Type | Default | Description |
+|:--------|:------|:----------|:-------------|
+| `trim` | `boolean` | `true` | Trim leading and trailing whitespace. |
+| `noise` | `boolean` | `true` | Remove filler and polite phrases (e.g., “please”, “as an AI language model”). |
+| `minGainPct` | `number` |
+
+***Returns***
 ```ts
-promptMinify(input: string, opts?: { trim?: boolean }): string
-promptDiff(input: string, output: string): { before: number; after: number; savedPct: number }
+{
+  optimized: string,
+  stats: {
+    bytesBefore: number,
+    bytesAfter: number,
+    savedBytesPct: number,
+    tokensBefore: number,
+    tokensAfter: number,
+    savedTokensPct: number
+  }
+}
 ```
 
 ---
@@ -66,22 +105,33 @@ promptDiff(input: string, output: string): { before: number; after: number; save
 <html>
   <body>
     <script type="module">
-      import { promptMinify, promptDiff } from './prompt.js';
+      import { optimizePrompt } from './prompt.js';
 
       const text = `
         You are a helpful helpful AI assistant.
         Please please summarize the following following text clearly clearly.
       `;
 
-      const minified = promptMinify(text);
-      console.log(minified);
-
-      const stats = promptDiff(text, minified);
-      console.log(stats); // { before: X, after: Y, savedPct: Z }
+      const { optimized, stats } = optimizePrompt(text, { minGainPct: 0 });
+      console.log(optimized);
+      console.log(stats);
     </script>
   </body>
 </html>
 ```
+
+---
+
+## ⚙️ Internals
+
+- **Regex-based cleanup only:**  
+  No AST, parser, or tokenizer dependency.
+
+- **Noise filtering:**  
+  Removes common polite or redundant phrases (e.g., “please”, “as an AI language model”, “make sure to”).
+
+- **Token estimation:**  
+  Uses a lightweight heuristic counter based on space and punctuation splitting to approximate token counts.
 
 ---
 
@@ -96,13 +146,6 @@ or click 👉🏻 [Prompt Minification Test](https://yvancg.github.io/optimizers
 
 This module is standalone. You can copy `prompt.js` into your own project.  
 No `npm install` or build step required.
-
-### Node one-liners
-
-```bash
-node is-minify/minify.js js < app.js > app.min.js
-node is-minify/minify.js css < styles.css > styles.min.css
-```
 
 ---
 
