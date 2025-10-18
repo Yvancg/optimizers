@@ -3,41 +3,123 @@
 // Security: pure string processing; no eval; safe for untrusted logs.
 // Perf: O(n) single regex pass.
 
-// 1) Unwrap OSC-8 hyperlinks: ESC ] 8 ; params ; URL ST  TEXT  ESC ] 8 ; params ; ST  → TEXT
-const OSC8_LINK = /\x1B\]8;[^\x07\x1B]*;[^\x07\x1B]*?(?:\x07|\x1B\\)([\s\S]*?)\x1B\]8;[^\x07\x1B]*;(?:\x07|\x1B\\)/g;
+// is-strip-ansi/strip.js
+// Robust stripper with OSC-8 unwrap. No deps.
 
-// 2) Any OSC block (non-greedy, ST = BEL or ESC\)
-const OSC_ANY = /\x1B\][\s\S]*?(?:\x07|\x1B\\)/g;
+const ESC = 0x1B;    // \x1B
+const BEL = 0x07;    // \x07
+const CSI_C1 = 0x9B; // single-byte CSI
 
-// 3) DCS/SOS/PM/APC blocks using ST
-const DCS_SOS_PM_APC = /\x1B(?:P|X|\^|_)[\s\S]*?(?:\x07|\x1B\\)/g;
-
-// 4) CSI (ESC[ … or C1 0x9B …)
-const CSI = /(?:\x1B\[|\u009B)[0-?]*[ -/]*[@-~]/g;
-
-// 5) Residual C0 controls except \n\r\t
-const C0 = /[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g;
+function isFinalByte(code) {
+  // CSI final byte range @ (0x40) ... ~ (0x7E)
+  return code >= 0x40 && code <= 0x7E;
+}
 
 export function stripAnsi(input) {
   if (input == null) return '';
-  let s = String(input);
+  const s = String(input);
+  const n = s.length;
+  let i = 0;
+  let out = '';
 
-  // unwrap links first so we keep the visible text
-  s = s.replace(OSC8_LINK, '$1');
+  while (i < n) {
+    const c = s.charCodeAt(i);
 
-  // drop remaining control sequences
-  s = s.replace(OSC_ANY, '');
-  s = s.replace(DCS_SOS_PM_APC, '');
-  s = s.replace(CSI, '');
-  s = s.replace(C0, '');
+    // ---- CSI via C1 (0x9B) ----
+    if (c === CSI_C1) {
+      i++; // consume C1
+      while (i < n && !isFinalByte(s.charCodeAt(i))) i++;
+      if (i < n) i++; // consume final
+      continue;
+    }
 
-  return s;
+    if (c === ESC) {
+      const next = s.charCodeAt(i + 1);
+
+      // ---- CSI via ESC [ ----
+      if (s[i + 1] === '[') {
+        i += 2;
+        while (i < n && !isFinalByte(s.charCodeAt(i))) i++;
+        if (i < n) i++;
+        continue;
+      }
+
+      // ---- OSC via ESC ] ----
+      if (s[i + 1] === ']') {
+        // i points to ESC, i+1 is ']'
+        // Check for OSC-8 hyperlink: ESC ] 8 ; params ; url ST  TEXT  ESC ] 8 ; params ; ST
+        let j = i + 2; // start after ']'
+        // read up to ST of the first OSC
+        const st1 = findST(s, j);
+        if (st1 === -1) { i = n; break; }
+
+        const isOSC8 = s[j] === '8' && s[j + 1] === ';';
+        if (isOSC8) {
+          // visible text starts after first ST, ends before closing OSC-8
+          const textStart = st1 + stLen(s, st1);
+          // find closing OSC-8 opener "ESC]8;"
+          const closeOpen = s.indexOf('\x1B]8;', textStart);
+          if (closeOpen !== -1) {
+            const st2 = findST(s, closeOpen + 3);
+            if (st2 !== -1) {
+              // append only the visible text between the two OSC-8 sequences
+              out += s.slice(textStart, closeOpen);
+              i = st2 + stLen(s, st2);
+              continue;
+            }
+          }
+        }
+
+        // Non-OSC8 or failed pairing: drop entire OSC block
+        i = st1 + stLen(s, st1);
+        continue;
+      }
+
+      // ---- DCS/SOS/PM/APC via ESC P/X/^/_ ----
+      if (s[i + 1] === 'P' || s[i + 1] === 'X' || s[i + 1] === '^' || s[i + 1] === '_') {
+        const st = findST(s, i + 2);
+        i = st === -1 ? n : st + stLen(s, st);
+        continue;
+      }
+
+      // ---- Other short ESC sequences: consume ESC + next ----
+      i += 2;
+      continue;
+    }
+
+    // ---- C0 controls except \n \r \t ----
+    if ((c <= 0x1F || c === 0x7F) && c !== 0x09 && c !== 0x0A && c !== 0x0D) {
+      i++;
+      continue;
+    }
+
+    // keep visible char
+    out += s[i++];
+  }
+
+  return out;
+}
+
+// Find String Terminator for OSC/DCS etc. ST is BEL (\x07) or ESC \
+function findST(s, start) {
+  const n = s.length;
+  for (let i = start; i < n; i++) {
+    const ch = s.charCodeAt(i);
+    if (ch === BEL) return i;                 // BEL
+    if (ch === ESC && s[i + 1] === '\\') return i; // ESC \
+  }
+  return -1;
+}
+
+function stLen(s, idx) {
+  // returns the length in chars of the ST sequence at s[idx..]
+  if (s.charCodeAt(idx) === BEL) return 1;
+  if (s.charCodeAt(idx) === ESC && s[idx + 1] === '\\') return 2;
+  return 0;
 }
 
 export function hasAnsi(input) {
   const str = String(input || '');
-  return (
-    OSC8_LINK.test(str) || OSC_ANY.test(str) ||
-    DCS_SOS_PM_APC.test(str) || CSI.test(str) || C0.test(str)
-  );
+  // quick checks: ESC, C1 CSI, or BEL/ESC\ ST patterns
+  return /[\x1B\x9B]/.test(str);
 }
