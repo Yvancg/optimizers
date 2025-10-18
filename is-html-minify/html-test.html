@@ -1,18 +1,38 @@
 <!doctype html>
-<meta charset="utf-8"/>
-<title>is-html-minify demo</title>
-<style>
-  body { font-family: system-ui, sans-serif; max-width: 840px; margin: 24px auto; }
-  textarea, pre { width: 100%; box-sizing: border-box; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
-  textarea { height: 180px; padding: 10px; }
-  .btn { padding: 8px 12px; border: 1px solid #e5e7eb; background: #111827; color: #fff; border-radius: 8px; cursor: pointer; }
-  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-</style>
-<h1>is-html-minify</h1>
-<div class="row">
-  <div>
-    <h3>Input</h3>
-    <textarea id="inp"><!-- comment -->
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>HTML Minifier — is-html-minify</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root { --fg:#0b0b0c; --bg:#f8fafc; --border:#e5e7eb; --muted:#6b7280; }
+    body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; margin:0; background:var(--bg); color:var(--fg); }
+    header { padding:18px 20px; background:#fff; border-bottom:1px solid var(--border); }
+    main { max-width:900px; margin:24px auto; padding:0 16px 48px; }
+    h1 { margin:0; font-size:20px; }
+    .card { background:#fff; border:1px solid var(--border); border-radius:12px; padding:16px; margin-top:16px; }
+    textarea, pre { width:100%; box-sizing:border-box; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size:13px; }
+    textarea { height: 220px; padding: 10px; border:1px solid var(--border); border-radius:10px; }
+    pre { background:#f9fafb; padding:10px; border-radius:10px; overflow:auto; min-height:220px; border:1px solid var(--border); }
+    .controls { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+    .btn { padding:10px 14px; border:1px solid var(--border); background:#111827; color:#fff; border-radius:10px; cursor:pointer; font-size:14px; }
+    .btn.alt { background:#fff; color:#111827; }
+    .muted { color:var(--muted); font-size:12px; }
+    .row { display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
+    label.opt { display:flex; align-items:center; gap:8px; font-size:13px; }
+    footer { margin-top:32px; font-size:12px; color:var(--muted); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>HTML Minifier — <code>is-html-minify/html.js</code></h1>
+  </header>
+  <main>
+    <div class="card">
+      <div class="row">
+        <div>
+          <label for="inp">Input</label>
+          <textarea id="inp"><!-- comment -->
 <div class="box">
   <p> Hello   world </p>
   <pre>   keep   whitespace   here   </pre>
@@ -20,18 +40,56 @@
   const x =  1 + 2
   </script>
 </div></textarea>
-  </div>
-  <div>
-    <h3>Output</h3>
-    <pre id="out">…</pre>
-  </div>
-</div>
-<p><button class="btn" id="btn">Minify</button></p>
-<script type="module">
-  import { minifyHTML } from './html.js';
-  const $ = id => document.getElementById(id);
-  $('btn').addEventListener('click', () => {
-    const res = minifyHTML($('inp').value);
-    $('out').textContent = res;
-  });
-</script>
+        </div>
+        <div>
+          <label for="out">Output</label>
+          <pre id="out">Run a minification.</pre>
+        </div>
+      </div>
+      <div class="controls">
+        <button id="btn-minify" class="btn">Minify</button>
+        <button id="btn-clear" class="btn alt">Clear</button>
+        <span class="muted">Options:</span>
+        <label class="opt"><input type="checkbox" id="opt-comments" checked> remove comments</label>
+        <label class="opt"><input type="checkbox" id="opt-whitespace" checked> collapse whitespace</label>
+        <label class="opt"><input type="checkbox" id="opt-trim-attr" checked> trim attribute whitespace</label>
+        <label class="opt"><input type="checkbox" id="opt-empty-attr"> remove empty attributes</label>
+      </div>
+    </div>
+
+    <footer>
+      Generated: <span id="today"></span> — Compatible with <code>is-html-minify/html.js</code>
+    </footer>
+  </main>
+
+  <script type="module">
+    import { minifyHTML } from './html.js';
+    const $ = id => document.getElementById(id);
+    $('today').textContent = new Date().toISOString().slice(0,10);
+
+    $('btn-minify').addEventListener('click', run);
+    $('btn-clear').addEventListener('click', () => {
+      $('inp').value = '';
+      $('out').textContent = 'Cleared.';
+    });
+
+    function opts() {
+      return {
+        removeComments: $('opt-comments').checked,
+        collapseWhitespace: $('opt-whitespace').checked,
+        trimAttrWhitespace: $('opt-trim-attr').checked,
+        removeEmptyAttributes: $('opt-empty-attr').checked
+      };
+    }
+
+    function run() {
+      const src = $('inp').value;
+      const res = minifyHTML(src, opts());
+      $('out').textContent = res; // safe: plain text
+    }
+
+    // initial run to show behavior
+    run();
+  </script>
+</body>
+</html>
