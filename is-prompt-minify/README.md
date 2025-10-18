@@ -79,7 +79,8 @@ Advanced mode with noise filtering and token-based threshold.
 |:--------|:------|:----------|:-------------|
 | `trim` | `boolean` | `true` | Trim leading and trailing whitespace. |
 | `noise` | `boolean` | `true` | Remove filler and polite phrases (e.g., “please”, “as an AI language model”). |
-| `minGainPct` | `number` |
+| `minGainPct` | `number` | `0` | Skip edits if token reduction below threshold |
+
 
 ***Returns***
 ```ts
