@@ -26,9 +26,9 @@
       <textarea id="input" placeholder="Paste a long prompt..." spellcheck="false"></textarea>
 
       <div class="controls">
-        <button id="btn-run"  class="btn"      type="button">Minify</button>
-        <button id="btn-clear"class="btn alt"  type="button">Clear</button>
-        <button id="btn-sample"class="btn alt" type="button">Sample Prompt</button>
+        <button id="btn-run" class="btn" type="button">Minify</button>
+        <button id="btn-clear" class="btn alt" type="button">Clear</button>
+        <button id="btn-sample" class="btn alt" type="button">Sample Prompt</button>
       </div>
 
       <div class="stats" id="stats"></div>
@@ -46,31 +46,28 @@
 
   <script type="module">
     const $ = (id) => document.getElementById(id);
-    $('today') && ($('today').textContent = new Date().toISOString().slice(0,10));
-  
+    $('today').textContent = new Date().toISOString().slice(0,10);
+
     const SAMPLE = `You are a helpful helpful AI assistant.
-  
-  Please please summarize the following following text clearly clearly.
-  
-  This this example example includes includes repeated repeated words words and  extra   spaces.
-  
-  It should also also normalize newlines and trim trim output.`;
-  
+
+Please please summarize the following following text clearly clearly.
+
+This this example example includes includes repeated repeated words words and  extra   spaces.
+
+It should also also normalize newlines and trim trim output.`;
+
     (async () => {
       try {
-        // Adjust path if this file is NOT in the same folder as prompt.js
-        // e.g. '../is-prompt-minify/prompt.js'
-        const { promptMinify, promptDiff } = await import('./prompt.js');
-  
+        const { optimizePrompt } = await import('./prompt.js');
+
         function run() {
           const input = $('input').value || '';
-          const output = promptMinify(input);
-          $('output').value = output;
-          const { before, after, savedPct } = promptDiff(input, output);
+          const { optimized, stats } = optimizePrompt(input, { minGainPct: 0, noise: true });
+          $('output').value = optimized;
           $('stats').textContent =
-            `Input: ${before} bytes → Output: ${after} bytes (saved ${savedPct}% )`;
+            `Input: ${stats.bytesBefore} bytes → Output: ${stats.bytesAfter} bytes (saved ${stats.savedBytesPct}% | tokens ${stats.tokensBefore}→${stats.tokensAfter}, −${stats.savedTokensPct}%)`;
         }
-  
+
         $('btn-run').addEventListener('click', run);
         $('btn-clear').addEventListener('click', () => {
           $('input').value = '';
@@ -81,10 +78,9 @@
           $('input').value = SAMPLE;
           run();
         });
-  
-        // initial content so Minify does something on first click
-        $('input').value = SAMPLE;
-  
+
+        $('input').value = SAMPLE; // initial content
+        run();
       } catch (e) {
         const pre = document.createElement('pre');
         pre.style.cssText = 'color:#b00020;background:#fff1f2;border:1px solid #fecdd3;padding:8px;border-radius:8px;';
