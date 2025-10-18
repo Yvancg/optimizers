@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Prompt Minify Test — is-prompt-minify</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root { --fg:#0b0b0c; --bg:#f8fafc; --card:#fff; --border:#e5e7eb; --muted:#6b7280; }
+    * { box-sizing:border-box; font-family:ui-sans-serif, system-ui; }
+    body { margin:0; background:var(--bg); color:var(--fg); }
+    header { padding:18px 20px; background:#fff; border-bottom:1px solid var(--border); }
+    main { max-width:1000px; margin:24px auto; padding:0 16px 48px; }
+    .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:16px; }
+    textarea { width:100%; min-height:200px; padding:10px 12px; border:1px solid var(--border); border-radius:10px; font-size:13px; }
+    .controls { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+    .btn { padding:10px 14px; border:1px solid var(--border); background:#111827; color:#fff; border-radius:10px; cursor:pointer; font-size:14px; }
+    .btn.alt { background:#fff; color:#111827; }
+    .stats { font-size:12px; color:var(--muted); margin-top:8px; }
+  </style>
+</head>
+<body>
+  <header><h1>Prompt Minify Test — <code>is-prompt-minify/prompt.js</code></h1></header>
+  <main>
+    <section class="card">
+      <label for="input">Prompt Input</label>
+      <textarea id="input" placeholder="Paste a long prompt..."></textarea>
+
+      <div class="controls">
+        <button id="btn-run" class="btn">Minify</button>
+        <button id="btn-clear" class="btn alt">Clear</button>
+        <button id="btn-sample" class="btn alt">Sample Prompt</button>
+      </div>
+
+      <div class="stats" id="stats"></div>
+    </section>
+
+    <section class="card">
+      <label for="output">Minified Output</label>
+      <textarea id="output" readonly></textarea>
+    </section>
+
+    <footer style="font-size:12px;color:var(--muted);">
+      Generated: <span id="today"></span> — Runs entirely in your browser.
+    </footer>
+  </main>
+
+  <script type="module">
+    import { promptMinify, promptDiff } from './prompt.js';
+    const $ = id => document.getElementById(id);
+    $('today').textContent = new Date().toISOString().slice(0,10);
+
+    const SAMPLE = `
+      You are a helpful helpful AI assistant.
+      Please please summarize the following following text clearly clearly.
+
+      This this example example includes includes repeated repeated words words and  extra   spaces.
+
+
+      It should also also normalize newlines and trim trim output.
+    `;
+
+    function run() {
+      const input = $('input').value;
+      const output = promptMinify(input);
+      $('output').value = output;
+      const { before, after, savedPct } = promptDiff(input, output);
+      $('stats').textContent = \`Input: \${before} bytes → Output: \${after} bytes (saved \${savedPct}% )\`;
+    }
+
+    $('btn-run').addEventListener('click', run);
+    $('btn-clear').addEventListener('click', () => {
+      $('input').value = '';
+      $('output').value = '';
+      $('stats').textContent = '';
+    });
+    $('btn-sample').addEventListener('click', () => {
+      $('input').value = SAMPLE.trim();
+      $('stats').textContent = '';
+    });
+  </script>
+</body>
+</html>
