@@ -60,6 +60,12 @@ export function minifyHTML(input, opts = {}) {
       });
     }
 
+    // collapse runs inside text nodes only: > ... <
+    chunk = chunk.replace(/>([^<]+)</g, (m, text) => {
+      const cleaned = text.replace(/\s{2,}/g, ' ').trim();
+      return '>' + cleaned + '<';
+    });
+        
     if (cfg.collapseWhitespace) {
       const INLINE = /^(a|abbr|b|bdi|bdo|cite|code|data|dfn|em|i|kbd|label|mark|q|rp|rt|rtc|ruby|s|samp|small|span|strong|sub|sup|time|u|var)$/i;
     
