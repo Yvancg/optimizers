@@ -53,13 +53,16 @@ console.log(minifyHTML(html));
 ## 🧠 API
 
 ```ts
-minifyHTML(input: string, opts?: {
-  removeComments?: boolean;          // default true
-  collapseWhitespace?: boolean;      // default true
-  trimAttrWhitespace?: boolean;      // default true
-  removeEmptyAttributes?: boolean;   // default false
-  booleanAttrShortening?: boolean;   // reserved (no-op by default)
-}): string
+minifyHTML(input, {
+  removeComments?: true,
+  collapseWhitespace?: true,
+  trimAttrWhitespace?: true,
+  removeEmptyAttributes?: false,
+  booleanAttrShortening?: false,
+  removeDefaultType?: true,
+  keepMarkers?: string[],           // e.g. ['prettier-ignore']
+  preserveTags?: string[]           // override ['pre','textarea','script','style']
+})
 ```
 
 ---
