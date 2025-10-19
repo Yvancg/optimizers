@@ -2,9 +2,10 @@ import { writeFileSync } 		  from 'node:fs';
 import { performance }   		  from 'node:perf_hooks';
 
 // --- Import targets explicitly to avoid discovery misses ---
+import { minifyHTML }         from '../is-html-minify/html.js';
 import { minifyJS }     			from '../is-minify/minify.js';
-import { stripAnsi }          from '../is-strip-ansi/strip.js';
 import { promptMinify }       from '../is-prompt-minify/prompt.js';
+import { stripAnsi }          from '../is-strip-ansi/strip.js';
 
 function bench(fn, input, iters) {
   // warmup
@@ -17,13 +18,24 @@ function bench(fn, input, iters) {
 }
 
 const targets = [
+  {
+    name: 'html-minify',
+    fn: () => minifyHTML(`
+      <!-- comment -->
+      <div class="box">
+        <p> Hello   world </p>
+        <pre> keep   this   </pre>
+        <script> const x =  1 + 2 </script>
+      </div>`),
+    iters: 4000,
+  },
   { name: 'minify', fn: () => minifyJS('function x(){return 42}/*c*/'),             iters: 2000 },
-  { name: 'strip', fn: () => stripAnsi('\u001B[31mError:\u001B[0m invalid token'),  iters: 12000 },
   {
     name: 'prompt',
     fn: () => promptMinify('You are a helpful helpful AI assistant. Please please respond clearly clearly.'),
     iters: 10000,
   },
+  { name: 'strip', fn: () => stripAnsi('\u001B[31mError:\u001B[0m invalid token'),  iters: 12000 },
 ];
 
 let wrote = 0;
