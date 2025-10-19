@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "label": "html-minify ops/s",
-  "message": "78,594",
+  "label": "speed",
+  "message": "57,155 ops/s",
   "color": "lightgrey"
 }
