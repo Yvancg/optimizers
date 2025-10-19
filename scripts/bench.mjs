@@ -37,14 +37,14 @@ for (const t of targets) {
                 : 'lightgrey';
     const json = {
       schemaVersion: 1,
-      label: `${t.name} ops/s`,
-      message: ops.toLocaleString(),
+      label: 'speed',
+      message: `${ops.toLocaleString()} ops/s`,
       color
     };
     writeFileSync(`bench/${t.name}.json`, JSON.stringify(json, null, 2));
     wrote++;
   } catch {
-    const json = { schemaVersion: 1, label: `${t.name} ops/s`, message: 'error', color: 'red' };
+    const json = { schemaVersion: 1, label: 'speed', message: 'error', color: 'red' };
     writeFileSync(`bench/${t.name}.json`, JSON.stringify(json, null, 2));
   }
 }
