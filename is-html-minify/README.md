@@ -152,7 +152,8 @@ If this library helped you, consider sponsoring its maintenance.
 [☕ Support via BuyMeACoffee](https://buymeacoffee.com/yconsulting)
 
 ### Direct Contribution  
-[💸 Pay via Wise](https://wise.com/pay/me/yvanc7)
+[💸 Donate via Paypal](custom: "https://paypal.me/ComicStylePortrait"
+)
 
 ---
 
