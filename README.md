@@ -10,8 +10,8 @@ Each tool focuses on a single responsibility and runs without build steps or run
 Available modules:
 
 - **is-html-minify** — Safe HTML minifier that removes comments and collapses whitespace while preserving `<pre>`, `<textarea>`, `<script>`, and `<style>` content.  
-  [![html gzip](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/metrics/html.js.json)](./metrics/html.js.json)
-  [![html ops/s](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/bench/html.json)](./bench/html.json)
+  [![html gzip](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/metrics/html-minify.js.json)](./metrics/html.js.json)
+  [![html ops/s](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/bench/html-minify.json)](./bench/html.json)
 
 - **is-minify** — Safe, dependency-free JavaScript and CSS minifier for browser and Node.  
   [![minify gzip](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/metrics/minify.js.json)](./metrics/minify.js.json)
