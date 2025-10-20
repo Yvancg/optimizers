@@ -1,0 +1,125 @@
+{
+  "version": "2025-10-20",
+  "tools": [
+    {
+      "name": "optimize-text-length",
+      "description": "Shortens or expands text to match a target character length without losing meaning.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "text": { "type": "string" },
+          "target_length": { "type": "integer" }
+        },
+        "required": ["text", "target_length"]
+      },
+      "rule": { "type": "builtin", "name": "optimizeLength" }
+    },
+    {
+      "name": "optimize-title-case",
+      "description": "Converts a title or headline to consistent title case capitalization.",
+      "input_schema": {
+        "type": "object",
+        "properties": { "title": { "type": "string" } },
+        "required": ["title"]
+      },
+      "rule": { "type": "builtin", "name": "toTitleCase", "field": "title" }
+    },
+    {
+      "name": "optimize-whitespace",
+      "description": "Cleans up extra spaces, tabs, and line breaks in text.",
+      "input_schema": {
+        "type": "object",
+        "properties": { "text": { "type": "string" } },
+        "required": ["text"]
+      },
+      "rule": { "type": "builtin", "name": "trimWhitespace", "field": "text" }
+    },
+    {
+      "name": "optimize-slug",
+      "description": "Generates a clean, SEO-friendly slug from text.",
+      "input_schema": {
+        "type": "object",
+        "properties": { "text": { "type": "string" } },
+        "required": ["text"]
+      },
+      "rule": { "type": "builtin", "name": "slugify", "field": "text" }
+    },
+    {
+      "name": "optimize-keywords",
+      "description": "Extracts and ranks the most relevant keywords from text.",
+      "input_schema": {
+        "type": "object",
+        "properties": { "text": { "type": "string" }, "count": { "type": "integer" } },
+        "required": ["text"]
+      },
+      "rule": {
+        "type": "builtin",
+        "name": "extractKeywords",
+        "params": { "default_count": 10 }
+      }
+    },
+    {
+      "name": "optimize-sentiment",
+      "description": "Optimizes tone by softening overly negative or aggressive wording.",
+      "input_schema": {
+        "type": "object",
+        "properties": { "text": { "type": "string" } },
+        "required": ["text"]
+      },
+      "rule": { "type": "builtin", "name": "toneNeutralizer", "field": "text" }
+    },
+    {
+      "name": "optimize-summary",
+      "description": "Creates a concise summary from long text using basic frequency-based compression.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "text": { "type": "string" },
+          "sentence_limit": { "type": "integer" }
+        },
+        "required": ["text"]
+      },
+      "rule": {
+        "type": "builtin",
+        "name": "summarizeText",
+        "params": { "default_sentence_limit": 3 }
+      }
+    },
+    {
+      "name": "optimize-readability",
+      "description": "Simplifies complex sentences and replaces jargon to improve readability.",
+      "input_schema": {
+        "type": "object",
+        "properties": { "text": { "type": "string" } },
+        "required": ["text"]
+      },
+      "rule": { "type": "builtin", "name": "simplifyText", "field": "text" }
+    },
+    {
+      "name": "optimize-case-style",
+      "description": "Converts text between lower, upper, and sentence case.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "text": { "type": "string" },
+          "style": {
+            "type": "string",
+            "enum": ["lower", "upper", "sentence"]
+          }
+        },
+        "required": ["text", "style"]
+      },
+      "rule": { "type": "builtin", "name": "changeCaseStyle" }
+    },
+    {
+      "name": "optimize-punctuation",
+      "description": "Ensures consistent punctuation and spacing around punctuation marks.",
+      "input_schema": {
+        "type": "object",
+        "properties": { "text": { "type": "string" } },
+        "required": ["text"]
+      },
+      "rule": { "type": "builtin", "name": "fixPunctuation", "field": "text" }
+    }
+  ]
+}
