@@ -2,7 +2,7 @@
   "version": "2025-10-20",
   "tools": [
     {
-      "name": "optimize-html",
+      "name": "is-html-minify",
       "description": "Minify HTML safely while preserving <pre>, <textarea>, <script>, and <style> content.",
       "input_schema": {
         "type": "object",
@@ -14,7 +14,7 @@
       "rule": { "type": "builtin", "name": "minifyHTML", "field": "html" }
     },
     {
-      "name": "optimize-js",
+      "name": "is-minify-js",
       "description": "Minify JavaScript source with safe whitespace and punctuation collapse.",
       "input_schema": {
         "type": "object",
@@ -26,7 +26,7 @@
       "rule": { "type": "builtin", "name": "minifyJS", "field": "code" }
     },
     {
-      "name": "optimize-css",
+      "name": "is-minify-css",
       "description": "Minify CSS rules and declarations safely.",
       "input_schema": {
         "type": "object",
@@ -38,7 +38,7 @@
       "rule": { "type": "builtin", "name": "minifyCSS", "field": "code" }
     },
     {
-      "name": "optimize-prompt",
+      "name": "is-prompt-minify",
       "description": "Minify LLM prompts by removing redundancy and excess whitespace without changing meaning.",
       "input_schema": {
         "type": "object",
@@ -50,7 +50,7 @@
       "rule": { "type": "builtin", "name": "promptMinify", "field": "text" }
     },
     {
-      "name": "strip-ansi",
+      "name": "is-strip-ansi",
       "description": "Remove ANSI escape sequences from a string.",
       "input_schema": {
         "type": "object",
