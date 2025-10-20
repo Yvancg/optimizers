@@ -2,124 +2,64 @@
   "version": "2025-10-20",
   "tools": [
     {
-      "name": "optimize-text-length",
-      "description": "Shortens or expands text to match a target character length without losing meaning.",
+      "name": "optimize-html",
+      "description": "Minify HTML safely while preserving <pre>, <textarea>, <script>, and <style> content.",
       "input_schema": {
         "type": "object",
         "properties": {
-          "text": { "type": "string" },
-          "target_length": { "type": "integer" }
+          "html": { "type": "string" }
         },
-        "required": ["text", "target_length"]
+        "required": ["html"]
       },
-      "rule": { "type": "builtin", "name": "optimizeLength" }
+      "rule": { "type": "builtin", "name": "minifyHTML", "field": "html" }
     },
     {
-      "name": "optimize-title-case",
-      "description": "Converts a title or headline to consistent title case capitalization.",
-      "input_schema": {
-        "type": "object",
-        "properties": { "title": { "type": "string" } },
-        "required": ["title"]
-      },
-      "rule": { "type": "builtin", "name": "toTitleCase", "field": "title" }
-    },
-    {
-      "name": "optimize-whitespace",
-      "description": "Cleans up extra spaces, tabs, and line breaks in text.",
-      "input_schema": {
-        "type": "object",
-        "properties": { "text": { "type": "string" } },
-        "required": ["text"]
-      },
-      "rule": { "type": "builtin", "name": "trimWhitespace", "field": "text" }
-    },
-    {
-      "name": "optimize-slug",
-      "description": "Generates a clean, SEO-friendly slug from text.",
-      "input_schema": {
-        "type": "object",
-        "properties": { "text": { "type": "string" } },
-        "required": ["text"]
-      },
-      "rule": { "type": "builtin", "name": "slugify", "field": "text" }
-    },
-    {
-      "name": "optimize-keywords",
-      "description": "Extracts and ranks the most relevant keywords from text.",
-      "input_schema": {
-        "type": "object",
-        "properties": { "text": { "type": "string" }, "count": { "type": "integer" } },
-        "required": ["text"]
-      },
-      "rule": {
-        "type": "builtin",
-        "name": "extractKeywords",
-        "params": { "default_count": 10 }
-      }
-    },
-    {
-      "name": "optimize-sentiment",
-      "description": "Optimizes tone by softening overly negative or aggressive wording.",
-      "input_schema": {
-        "type": "object",
-        "properties": { "text": { "type": "string" } },
-        "required": ["text"]
-      },
-      "rule": { "type": "builtin", "name": "toneNeutralizer", "field": "text" }
-    },
-    {
-      "name": "optimize-summary",
-      "description": "Creates a concise summary from long text using basic frequency-based compression.",
+      "name": "optimize-js",
+      "description": "Minify JavaScript source with safe whitespace and punctuation collapse.",
       "input_schema": {
         "type": "object",
         "properties": {
-          "text": { "type": "string" },
-          "sentence_limit": { "type": "integer" }
+          "code": { "type": "string" }
         },
-        "required": ["text"]
+        "required": ["code"]
       },
-      "rule": {
-        "type": "builtin",
-        "name": "summarizeText",
-        "params": { "default_sentence_limit": 3 }
-      }
+      "rule": { "type": "builtin", "name": "minifyJS", "field": "code" }
     },
     {
-      "name": "optimize-readability",
-      "description": "Simplifies complex sentences and replaces jargon to improve readability.",
-      "input_schema": {
-        "type": "object",
-        "properties": { "text": { "type": "string" } },
-        "required": ["text"]
-      },
-      "rule": { "type": "builtin", "name": "simplifyText", "field": "text" }
-    },
-    {
-      "name": "optimize-case-style",
-      "description": "Converts text between lower, upper, and sentence case.",
+      "name": "optimize-css",
+      "description": "Minify CSS rules and declarations safely.",
       "input_schema": {
         "type": "object",
         "properties": {
-          "text": { "type": "string" },
-          "style": {
-            "type": "string",
-            "enum": ["lower", "upper", "sentence"]
-          }
+          "code": { "type": "string" }
         },
-        "required": ["text", "style"]
+        "required": ["code"]
       },
-      "rule": { "type": "builtin", "name": "changeCaseStyle" }
+      "rule": { "type": "builtin", "name": "minifyCSS", "field": "code" }
     },
     {
-      "name": "optimize-punctuation",
-      "description": "Ensures consistent punctuation and spacing around punctuation marks.",
+      "name": "optimize-prompt",
+      "description": "Minify LLM prompts by removing redundancy and excess whitespace without changing meaning.",
       "input_schema": {
         "type": "object",
-        "properties": { "text": { "type": "string" } },
+        "properties": {
+          "text": { "type": "string" }
+        },
         "required": ["text"]
       },
-      "rule": { "type": "builtin", "name": "fixPunctuation", "field": "text" }
+      "rule": { "type": "builtin", "name": "promptMinify", "field": "text" }
+    },
+    {
+      "name": "strip-ansi",
+      "description": "Remove ANSI escape sequences from a string.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "text": { "type": "string" }
+        },
+        "required": ["text"]
+      },
+      "rule": { "type": "builtin", "name": "stripAnsi", "field": "text" }
     }
   ]
 }
