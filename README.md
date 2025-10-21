@@ -36,7 +36,7 @@ Each module has its own `README.md`, tests, and can be imported individually.
 
 You can try each validator interactively in your browser:
 
-- [hhtml Minification Test](https://yvancg.github.io/optimizers/is-html-minify/html-test.html)
+- [html Minification Test](https://yvancg.github.io/optimizers/is-html-minify/html-test.html)
 - [JS/CSS Minification Test](https://yvancg.github.io/optimizers/is-minify/minify-test.html)
 - [Prompt Minify Test](https://yvancg.github.io/optimizers/is-prompt-minify/prompt-test.html)
 - [Strip ANSI Test](https://yvancg.github.io/optimizers/is-strip-ansi/strip-test.html)
@@ -48,7 +48,7 @@ Each page loads its respective module and allows interactive validation.
 ```bash
 npm i @yvancg/optimizers
 ```
-# or per-module packages when published
+or per-module packages when published
 
 ## API Guarantees
 
