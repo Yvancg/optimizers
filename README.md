@@ -9,6 +9,10 @@ Each tool focuses on a single responsibility and runs without build steps or run
 
 Available modules:
 
+- **is-google-tag** — Optimizes Google Tag for async, non-blocking, privacy-safe loading.  
+  [![gtag gzip](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/metrics/gtag.js.json)](./metrics/gtag.js.json)
+  [![gtag ops/s](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/bench/gtag.json)](./bench/gtag.json)
+  
 - **is-html-minify** — Safe HTML minifier that removes comments and collapses whitespace while preserving `<pre>`, `<textarea>`, `<script>`, and `<style>` content.  
   [![html gzip](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/metrics/html.js.json)](./metrics/html.js.json)
   [![html ops/s](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/bench/html-minify.json)](./bench/html.json)
@@ -36,10 +40,11 @@ Each module has its own `README.md`, tests, and can be imported individually.
 
 You can try each validator interactively in your browser:
 
-- [html Minification Test](https://yvancg.github.io/optimizers/is-html-minify/html-test.html)
-- [JS/CSS Minification Test](https://yvancg.github.io/optimizers/is-minify/minify-test.html)
-- [Prompt Minify Test](https://yvancg.github.io/optimizers/is-prompt-minify/prompt-test.html)
-- [Strip ANSI Test](https://yvancg.github.io/optimizers/is-strip-ansi/strip-test.html)
+- [Google Tag Demo](https://yvancg.github.io/optimizers/is-google-tag/gtag-test.html)
+- [html Minification Demo](https://yvancg.github.io/optimizers/is-html-minify/html-test.html)
+- [JS/CSS Minification Demo](https://yvancg.github.io/optimizers/is-minify/minify-test.html)
+- [Prompt Minify Demo](https://yvancg.github.io/optimizers/is-prompt-minify/prompt-test.html)
+- [Strip ANSI Demo](https://yvancg.github.io/optimizers/is-strip-ansi/strip-test.html)
 
 Each page loads its respective module and allows interactive validation.
 
@@ -67,10 +72,14 @@ or per-module packages when published
 ## Example Usage
 
 ```js
+import { optimizeGTag } from './is-google-tag/gtag.js';
 import { minifyHTML }   from './is-html-minify/html.js';
 import { minifyJS, minifyCSS } from './is-minify/minify.js';
 import { promptMinify } from './is-prompt-minify/prompt.js';
 import { stripAnsi } from './is-strip-ansi/strip.js';
+
+console.log(optimizeGTag('<script src="https://www.googletagmanager.com/gtag/js?id=G-TEST"></script>'));
+// → optimized, async, privacy-safe version of the tag
 
 console.log(minifyHTML(`
   <!-- comment -->
@@ -100,10 +109,13 @@ console.log(stripAnsi('\u001B[31mError:\u001B[0m invalid token'));
 ```
 validators/
   ├─ .github/
+  │   ├─ workflows/
   │   └─ FUNDING.yml
   ├─ LICENSE
   ├─ README.md
   ├─ SECURITY.md
+  ├─ catalog.json
+  ├─ is-google-tag/
   ├─ is-html-minify/
   ├─ is-minify/
   ├─ is-prompt-minify/
