@@ -1,6 +1,7 @@
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { performance }              from 'node:perf_hooks';
 
+import { optimizeGTag } from '../is-google-tag/gtag.js';
 import { minifyHTML }  from '../is-html-minify/html.js';
 import { minifyJS }    from '../is-minify/minify.js';
 import { promptMinify }from '../is-prompt-minify/prompt.js';
@@ -15,6 +16,18 @@ function bench(fn, iters) {
 }
 
 const targets = [
+  {
+    name: 'gtag',
+    fn: () => optimizeGTag(`
+      <script src="https://www.googletagmanager.com/gtag/js?id=G-TEST123"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-TEST123');
+      </script>`),
+    iters: 6000,
+  },
   {
     name: 'html-minify',
     fn: () => minifyHTML(`<!-- c --><div class="box"><p> Hello   world </p><pre> keep   this   </pre><script> const x = 1 + 2 </script></div>`),
