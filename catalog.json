@@ -2,6 +2,27 @@
   "version": "2025-10-20",
   "tools": [
     {
+        "name": "is-google-tag",
+        "description": "Optimize Google Tag (gtag.js) for async, non-blocking, and privacy-safe loading.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "html": { "type": "string", "description": "Raw HTML snippet containing Google Tag script(s)" },
+            "options": {
+              "type": "object",
+              "properties": {
+                "anonymizeIP": { "type": "boolean", "default": true },
+                "transport": { "type": "string", "enum": ["beacon", "xhr", "image"], "default": "beacon" },
+                "async": { "type": "boolean", "default": true },
+                "idFallback": { "type": "string", "description": "Default GA tag ID if missing" }
+              }
+            }
+          },
+          "required": ["html"]
+        },
+        "rule": { "type": "builtin", "name": "optimizeGTag", "field": "html" }
+      },
+    {
       "name": "is-html-minify",
       "description": "Minify HTML safely while preserving <pre>, <textarea>, <script>, and <style> content.",
       "input_schema": {
