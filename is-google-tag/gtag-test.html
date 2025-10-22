@@ -1,20 +1,159 @@
+<!-- is-google-tag/gtag-test.html -->
 <!doctype html>
-<html>
-  <body>
-    <h1>is-google-tag Demo</h1>
-    <textarea id="inp" rows="8" style="width:100%;">
-<script src="https://www.googletagmanager.com/gtag/js?id=G-ABC123"></script>
-<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-ABC123');</script>
-    </textarea>
-    <button id="btn">Optimize</button>
-    <pre id="out"></pre>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Google Tag Optimizer — gtag.js</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root { --fg:#0b0b0c; --bg:#f8fafc; --card:#fff; --border:#e5e7eb; --muted:#6b7280; }
+    * { box-sizing: border-box; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; }
+    body { margin:0; background:var(--bg); color:var(--fg); }
+    header { padding:18px 20px; background:#fff; border-bottom:1px solid var(--border); }
+    h1 { margin:0; font-size:20px; }
+    main { max-width:1100px; margin:24px auto; padding:0 16px 48px; }
+    .row { display:grid; grid-template-columns: 1fr; gap:12px; }
+    @media (min-width: 980px) { .row { grid-template-columns: 1fr 1fr; } }
+    .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; }
+    label { font-size:12px; color:var(--muted); display:block; margin-bottom:6px; }
+    textarea { width:100%; min-height:240px; resize:vertical; padding:12px 14px; border:1px solid var(--border); border-radius:10px; font-size:13px; }
+    select, input[type=text], input[type=checkbox] { padding:10px 12px; border:1px solid var(--border); border-radius:10px; font-size:14px; background:#fff; }
+    .controls { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+    .btn { padding:10px 14px; border:1px solid var(--border); background:#111827; color:#fff; border-radius:10px; cursor:pointer; font-size:14px; }
+    .btn.alt { background:#fff; color:#111827; }
+    .stats { font-size:12px; color:var(--muted); margin-top:8px; }
+    .optgrid { display:grid; grid-template-columns: repeat(3, minmax(160px,1fr)); gap:8px; margin-top:10px; }
+    @media (max-width: 720px) { .optgrid { grid-template-columns: 1fr; } }
+    footer { margin-top:24px; font-size:12px; color:var(--muted); }
+    code { background:#f3f4f6; padding:2px 6px; border-radius:6px; }
+  </style>
+</head>
+<body>
+  <header><h1>Google Tag Optimizer — <code>is-google-tag/gtag.js</code></h1></header>
+  <main>
+    <div class="row">
+      <section class="card">
+        <label>Input snippet</label>
+        <textarea id="input" placeholder="Paste a GA4/GTM gtag snippet here"></textarea>
 
-    <script type="module">
-      import { optimizeGoogleTag } from './tag.js';
-      const $ = id => document.getElementById(id);
-      $('btn').onclick = () => {
-        $('out').textContent = optimizeGoogleTag($('inp').value);
-      };
-    </script>
-  </body>
+        <div class="optgrid">
+          <div>
+            <label>Async strategy</label>
+            <select id="strategy">
+              <option value="async">async</option>
+              <option value="defer">defer</option>
+            </select>
+          </div>
+          <div>
+            <label>Transport</label>
+            <select id="transport">
+              <option value="beacon">beacon</option>
+              <option value="image">image</option>
+              <option value="xhr">xhr</option>
+            </select>
+          </div>
+          <div>
+            <label style="display:flex;align-items:center;gap:8px;">
+              <input type="checkbox" id="anon" checked> anonymize_ip
+            </label>
+          </div>
+        </div>
+
+        <div class="controls">
+          <button id="btn-opt" class="btn">Optimize</button>
+          <button id="btn-clear" class="btn alt">Clear</button>
+          <button id="btn-fill" class="btn alt">Sample</button>
+        </div>
+        <div class="stats" id="stats-in">Input: 0 bytes</div>
+      </section>
+
+      <section class="card">
+        <label>Optimized output</label>
+        <textarea id="output" placeholder="Result will appear here" readonly></textarea>
+        <div class="controls">
+          <button id="btn-copy" class="btn alt">Copy</button>
+          <button id="btn-download" class="btn alt">Download</button>
+        </div>
+        <div class="stats" id="stats-out">Output: 0 bytes</div>
+      </section>
+    </div>
+
+    <footer>
+      Generated: <span id="today"></span>. Runs entirely in your browser.
+    </footer>
+  </main>
+
+  <script type="module">
+    import { optimizeGTag } from './gtag.js';
+
+    const $ = id => document.getElementById(id);
+    $('today').textContent = new Date().toISOString().slice(0,10);
+
+    const SAMPLE =
+`<script src="https://www.googletagmanager.com/gtag/js?id=G-ABC123"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-ABC123');
+</script>`;
+
+    const inEl = $('input');
+    const outEl = $('output');
+    const statsIn = $('stats-in');
+    const statsOut = $('stats-out');
+
+    const size = s => new TextEncoder().encode(String(s)).length;
+
+    function updateStats() {
+      const ib = size(inEl.value || '');
+      const ob = size(outEl.value || '');
+      statsIn.textContent = `Input: ${ib} bytes`;
+      statsOut.textContent = `Output: ${ob} bytes`;
+    }
+
+    function run() {
+      const async = $('strategy').value === 'async';
+      const transport = $('transport').value;
+      const anonymizeIP = $('anon').checked;
+      const out = optimizeGTag(inEl.value || '', { async, transport, anonymizeIP });
+      outEl.value = out;
+      updateStats();
+    }
+
+    // Wire up UI
+    $('btn-opt').addEventListener('click', run);
+    $('btn-clear').addEventListener('click', () => {
+      inEl.value = '';
+      outEl.value = '';
+      updateStats();
+    });
+    $('btn-fill').addEventListener('click', () => {
+      inEl.value = SAMPLE;
+      updateStats();
+    });
+    $('btn-copy').addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(outEl.value || ''); } catch {}
+    });
+    $('btn-download').addEventListener('click', () => {
+      const blob = new Blob([outEl.value || ''], { type: 'text/html;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'optimized-gtag.html';
+      document.body.appendChild(a);
+      a.click();
+      URL.revokeObjectURL(a.href);
+      a.remove();
+    });
+
+    inEl.addEventListener('input', updateStats);
+    $('strategy').addEventListener('change', run);
+    $('transport').addEventListener('change', run);
+    $('anon').addEventListener('change', run);
+
+    // Initial state
+    inEl.value = SAMPLE;
+    run();
+  </script>
+</body>
 </html>
