@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+  <body>
+    <h1>is-google-tag Demo</h1>
+    <textarea id="inp" rows="8" style="width:100%;">
+<script src="https://www.googletagmanager.com/gtag/js?id=G-ABC123"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-ABC123');</script>
+    </textarea>
+    <button id="btn">Optimize</button>
+    <pre id="out"></pre>
+
+    <script type="module">
+      import { optimizeGoogleTag } from './tag.js';
+      const $ = id => document.getElementById(id);
+      $('btn').onclick = () => {
+        $('out').textContent = optimizeGoogleTag($('inp').value);
+      };
+    </script>
+  </body>
+</html>
