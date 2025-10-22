@@ -44,7 +44,11 @@ If you discover a security issue or suspect a potential vulnerability:
 ## Scope
 
 This policy applies to all modules in the **Validators** repository:
+- `is-google-tag`
+- `is-html-minify`
 - `is-minify`
+- `is-prompt-minify`
+- `is-strip-ansi`
 -  etc
 
 ---
