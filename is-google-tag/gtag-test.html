@@ -17,7 +17,7 @@
     .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; }
     label { font-size:12px; color:var(--muted); display:block; margin-bottom:6px; }
     textarea { width:100%; min-height:240px; resize:vertical; padding:12px 14px; border:1px solid var(--border); border-radius:10px; font-size:13px; }
-    select, input[type=text], input[type=checkbox] { padding:10px 12px; border:1px solid var(--border); border-radius:10px; font-size:14px; background:#fff; }
+    select, input[type=text], { padding:10px 12px; border:1px solid var(--border); border-radius:10px; font-size:14px; background:#fff; }
     .controls { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
     .btn { padding:10px 14px; border:1px solid var(--border); background:#111827; color:#fff; border-radius:10px; cursor:pointer; font-size:14px; }
     .btn.alt { background:#fff; color:#111827; }
@@ -34,7 +34,7 @@
     <div class="row">
       <section class="card">
         <label>Input snippet</label>
-        <textarea id="input" placeholder="Paste a GA4/GTM gtag snippet here"></textarea>
+        <textarea id="input" placeholder="Paste a GA4/GTM gtag snippet here" spellcheck="false" autocomplete="off"></textarea>
 
         <div class="optgrid">
           <div>
@@ -69,10 +69,10 @@
 
       <section class="card">
         <label>Optimized output</label>
-        <textarea id="output" placeholder="Result will appear here" readonly></textarea>
+        <textarea id="output" placeholder="Result will appear here" readonly spellcheck="false" autocomplete="off"></textarea>
         <div class="controls">
-          <button id="btn-copy" class="btn alt">Copy</button>
-          <button id="btn-download" class="btn alt">Download</button>
+          <button id="btn-copy" class="btn alt" disabled>Copy</button>
+          <button id="btn-download" class="btn alt" disabled>Download</button>
         </div>
         <div class="stats" id="stats-out">Output: 0 bytes</div>
       </section>
