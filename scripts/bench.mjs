@@ -3,7 +3,7 @@ import { writeFileSync, mkdirSync, readFileSync } from 'node:fs';
 import { performance } from 'node:perf_hooks';
 
 // --- Import targets explicitly to avoid discovery misses ---
-import { optimizeGTag } from '../is-google-tag/gtag.js';
+import { optimizeGoogleTag } from '../is-google-tag/gtag.js';
 import { minifyHTML }   from '../is-html-minify/html.js';
 import { minifyJS }     from '../is-minify/minify.js';
 import { promptMinify } from '../is-prompt-minify/prompt.js';
@@ -22,7 +22,7 @@ async function bench(fn, iters) {
 const targets = [
   {
     name: 'gtag',
-    fn: () => optimizeGTag(String.raw`
+    fn: () => optimizeGoogleTag(String.raw`
       <script src="https://www.googletagmanager.com/gtag/js?id=G-TEST123"></script>
       <script>
         window.dataLayer = window.dataLayer || [];
