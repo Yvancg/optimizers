@@ -89,81 +89,90 @@
     </footer>
   </main>
 
-<script type="module">
-  import { optimizeGoogleTag } from './gtag.js';
-
-  const $ = id => document.getElementById(id);
-  $('today').textContent = new Date().toISOString().slice(0,10);
-
-  const SAMPLE = String.raw`<script src="https://www.googletagmanager.com/gtag/js?id=G-ABC123"><\/script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-ABC123');
-<\/script>`;
-
-  const inEl = $('input');
-  const outEl = $('output');
-  const statsIn = $('stats-in');
-  const statsOut = $('stats-out');
-  const copyBtn = $('btn-copy');
-  const dlBtn = $('btn-download');
-
-  const size = s => new TextEncoder().encode(String(s)).length;
-
-  function updateStats() {
-    const ib = size(inEl.value || '');
-    const ob = size(outEl.value || '');
-    statsIn.textContent = `Input: ${ib} bytes`;
-    statsOut.textContent = `Output: ${ob} bytes`;
-  }
-
-  function run() {
-    const async = $('strategy').value === 'async';
-    const transport = $('transport').value;
-    const anonymizeIP = $('anon').checked;
-    const out = optimizeGoogleTag(inEl.value || '', { async, transport, anonymizeIP });
-    outEl.value = out;
-    updateStats();
-    const hasOut = !!outEl.value;
-    copyBtn.disabled = !hasOut;
-    dlBtn.disabled = !hasOut;
-  }
-
-  // Wire up UI
-  $('btn-opt').addEventListener('click', run);
-  $('btn-clear').addEventListener('click', () => {
-    inEl.value = '';
+  <script type="module">
+    import { optimizeGTag } from './gtag.js';
+  
+    const $ = id => document.getElementById(id);
+    $('today').textContent = new Date().toISOString().slice(0,10);
+  
+    const SAMPLE = String.raw`<script src="https://www.googletagmanager.com/gtag/js?id=G-ABC123"><\/script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-ABC123');
+      <\/script>`;
+  
+    const inEl = $('input');
+    const outEl = $('output');
+    const statsIn = $('stats-in');
+    const statsOut = $('stats-out');
+    const copyBtn = $('btn-copy');
+    const dlBtn = $('btn-download');
+  
+    const size = s => new TextEncoder().encode(String(s)).length;
+    const updateStats = () => {
+      const ib = size(inEl.value || '');
+      const ob = size(outEl.value || '');
+      statsIn.textContent = `Input: ${ib} bytes`;
+      statsOut.textContent = `Output: ${ob} bytes`;
+    };
+  
+    function run() {
+      try {
+        const async = $('strategy').value === 'async';
+        const transport = $('transport').value;
+        const anonymizeIP = $('anon').checked;
+        const out = optimizeGTag(inEl.value || '', { async, transport, anonymizeIP });
+        outEl.value = out;
+        copyBtn.disabled = !out;
+        dlBtn.disabled  = !out;
+      } catch (e) {
+        outEl.value = `/* Error: ${e.message} */`;
+        copyBtn.disabled = true;
+        dlBtn.disabled = true;
+        console.error(e);
+      }
+      updateStats();
+    }
+  
+    // Wire up UI
+    $('btn-opt').addEventListener('click', run);
+    $('btn-clear').addEventListener('click', () => {
+      inEl.value = '';
+      outEl.value = '';
+      copyBtn.disabled = true;
+      dlBtn.disabled = true;
+      updateStats();
+    });
+    $('btn-fill').addEventListener('click', () => {
+      inEl.value = SAMPLE;       // just fill
+      // do NOT call run()
+      updateStats();             // update byte counts only
+    });
+    $('btn-copy').addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(outEl.value || ''); } catch {}
+    });
+    $('btn-download').addEventListener('click', () => {
+      const blob = new Blob([outEl.value || ''], { type: 'text/html;charset=utf-8' });
+      const a = Object.assign(document.createElement('a'), {
+        href: URL.createObjectURL(blob),
+        download: 'optimized-gtag.html'
+      });
+      document.body.appendChild(a); a.click(); URL.revokeObjectURL(a.href); a.remove();
+    });
+  
+    inEl.addEventListener('input', () => { updateStats(); copyBtn.disabled = true; dlBtn.disabled = true; });
+    $('strategy').addEventListener('change', () => { /* no auto-run */ });
+    $('transport').addEventListener('change', () => { /* no auto-run */ });
+    $('anon').addEventListener('change', () => { /* no auto-run */ });
+  
+    // Initial state: fill sample but do NOT optimize
+    inEl.value = SAMPLE;
     outEl.value = '';
     copyBtn.disabled = true;
     dlBtn.disabled = true;
     updateStats();
-  });
-  $('btn-fill').addEventListener('click', () => {
-    inEl.value = SAMPLE;
-    run(); // run immediately so users see output
-  });
-  $('btn-copy').addEventListener('click', async () => {
-    try { await navigator.clipboard.writeText(outEl.value || ''); } catch {}
-  });
-  $('btn-download').addEventListener('click', () => {
-    const blob = new Blob([outEl.value || ''], { type: 'text/html;charset=utf-8' });
-    const a = Object.assign(document.createElement('a'), {
-      href: URL.createObjectURL(blob),
-      download: 'optimized-gtag.html'
-    });
-    document.body.appendChild(a); a.click(); URL.revokeObjectURL(a.href); a.remove();
-  });
-
-  inEl.addEventListener('input', () => { updateStats(); copyBtn.disabled = true; dlBtn.disabled = true; });
-  $('strategy').addEventListener('change', run);
-  $('transport').addEventListener('change', run);
-  $('anon').addEventListener('change', run);
-
-  // Initial state
-  inEl.value = SAMPLE;
-  run();
-</script>
+  </script>
 </body>
 </html>
