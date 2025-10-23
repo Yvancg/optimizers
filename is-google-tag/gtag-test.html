@@ -146,9 +146,8 @@
       updateStats();
     });
     $('btn-fill').addEventListener('click', () => {
-      inEl.value = SAMPLE;       // just fill
-      // do NOT call run()
-      updateStats();             // update byte counts only
+      inEl.value = SAMPLE;
+      updateStats();
     });
     $('btn-copy').addEventListener('click', async () => {
       try { await navigator.clipboard.writeText(outEl.value || ''); } catch {}
