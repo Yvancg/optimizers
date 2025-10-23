@@ -123,7 +123,7 @@
     const async = $('strategy').value === 'async';
     const transport = $('transport').value;
     const anonymizeIP = $('anon').checked;
-    const out = optimizeGTag(inEl.value || '', { async, transport, anonymizeIP });
+    const out = optimizeGoogleTag(inEl.value || '', { async, transport, anonymizeIP });
     outEl.value = out;
     updateStats();
     const hasOut = !!outEl.value;
