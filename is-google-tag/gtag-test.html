@@ -90,13 +90,13 @@
     $('today').textContent = new Date().toISOString().slice(0,10);
 
     const SAMPLE =
-`<script src="https://www.googletagmanager.com/gtag/js?id=G-ABC123"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-ABC123');
-</script>`;
+    `<script src="https://www.googletagmanager.com/gtag/js?id=G-ABC123"><\/script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-ABC123');
+    <\/script>`;
 
     const inEl = $('input');
     const outEl = $('output');
