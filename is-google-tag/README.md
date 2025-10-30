@@ -131,4 +131,4 @@ If this library helped you, consider sponsoring its maintenance.
 [☕ Support via BuyMeACoffee](https://buymeacoffee.com/yconsulting)
 
 ### Custom link
-[💸 Direct Contribution via Paypal]([https://www.paypal.com/ncp/payment/4HT7CA3E7HYBA])
+[💸 Direct Contribution via Paypal](https://www.paypal.com/ncp/payment/4HT7CA3E7HYBA)
