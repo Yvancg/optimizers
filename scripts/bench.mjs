@@ -21,6 +21,18 @@ async function bench(fn, iters) {
 
 const targets = [
   {
+    name: 'dataset',
+    file: './is-dataset/dataset.js',
+    bench: async (m) => {
+      return await bench(() =>
+        m.optimizeDataset('[{"id":1,"name":"John"},{"id":1,"name":"John"}]', {
+          format: 'json',
+          dropDuplicateRows: true
+        }), 200
+      );
+    }
+  },
+  {
     name: 'gtag',
     fn: () => optimizeGoogleTag(String.raw`
       <script src="https://www.googletagmanager.com/gtag/js?id=G-TEST123"></script>
