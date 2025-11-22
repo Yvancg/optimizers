@@ -16,24 +16,8 @@ const INLINE_TAGS = new Set([
   'strong','sub','sup','time','u','var'
 ]);
 
-// Shared regexes (compiled once)
-const PRESERVE_OPEN_RX = /<(pre|textarea|script|style)\b/gi;
-const COMMENT_RX       = /<!--(?!\[if|\s*<!)[\s\S]*?-->/g;
-const TAG_ATTR_RX      = /<([A-Za-z][^\s/>]*)([^>]*)>/g;
-const BETWEEN_TAGS_RX  = />([^<]+)</g;
-const INTERTAG_WS_RX   = />\s+</g;
-const EDGE_WS_RX       = /^\s+|\s+$/g;
-const TRIM_EQ_RX       = /\s*=\s*/g;
-const MULTISPACE_RX    = /\s+/g;
-const TRIM_DQUOT_RX    = /="([^"]*)"/g;
-const TRIM_SQUOT_RX    = /='([^']*)'/g;
-const EMPTY_ATTR_RX    = /\s+([^\s=/>]+)=(?:""|''|\s*(?=>|\/>))/g;
-const BOOL_ATTR_RX     = /\s+(disabled|checked|selected|readonly|required|autoplay|controls|hidden|multiple|novalidate)\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi;
-const TYPE_JS_RX       = /\s+type=(?:"text\/javascript"|'text\/javascript')/i;
-const TYPE_CSS_RX      = /\s+type=(?:"text\/css"|'text\/css')/i;
-
-// Lowercase-only regex for preserve detection in lowercased HTML
-const PRESERVE_SCAN_RX = /<(pre|textarea|script|style)\b/g;
+// Single regex reused for preserve segmentation
+const PRESERVE_RX = /<(pre|textarea|script|style)\b/i;
 
 export function minifyHTML(input, opts = {}) {
   let html = typeof input === 'string' ? input : '';
@@ -72,7 +56,7 @@ export function minifyHTML(input, opts = {}) {
     });
   }
 
-  // 1) Segment by preserve tags (single pass with global regex)
+  // 1) Segment by preserve tags
   const segs = segmentByPreserveTags(html, htmlLower, cfg.preserveTags);
 
   // 2) Process non-preserved segments
@@ -82,12 +66,13 @@ export function minifyHTML(input, opts = {}) {
 
     // 2.1) Comments
     if (cfg.removeComments) {
-      chunk = chunk.replace(COMMENT_RX, '');
+      // avoid conditional comments / downlevel-revealed hacks
+      chunk = chunk.replace(/<!--(?!\[if|\s*<!)[\s\S]*?-->/g, '');
     }
 
     // 2.2) Attribute-level cleanup
     if (cfg.trimAttrWhitespace || cfg.removeEmptyAttributes || cfg.booleanAttrShortening || cfg.removeDefaultType) {
-      chunk = chunk.replace(TAG_ATTR_RX, (m, tag, attrs) => {
+      chunk = chunk.replace(/<([A-Za-z][^\s/>]*)([^>]*)>/g, (m, tag, attrs) => {
         // closing tag: leave untouched
         if (tag[0] === '/') return m;
 
@@ -97,26 +82,29 @@ export function minifyHTML(input, opts = {}) {
 
         if (cfg.trimAttrWhitespace) {
           // collapse spaces and normalize equals
-          a = a.replace(MULTISPACE_RX, ' ');
-          a = a.replace(TRIM_EQ_RX, '=');
+          a = a.replace(/\s+/g, ' ');
+          a = a.replace(/\s*=\s*/g, '=');
           // trim quoted attribute values
-          a = a
-            .replace(TRIM_DQUOT_RX, (_, v) => `="${v.trim()}"`)
-            .replace(TRIM_SQUOT_RX, (_, v) => `='${v.trim()}'`);
+          a = a.replace(/="([^"]*)"/g, (_, v) => `="${v.trim()}"`)
+               .replace(/='([^']*)'/g, (_, v) => `='${v.trim()}'`);
           a = a.trim();
         }
 
         if (cfg.removeEmptyAttributes) {
-          a = a.replace(EMPTY_ATTR_RX, '');
+          // remove attr="" or attr='' or missing value
+          a = a.replace(/\s+([^\s=/>]+)=(?:""|''|\s*(?=>|\/>))/g, '');
         }
 
         if (cfg.booleanAttrShortening) {
-          a = a.replace(BOOL_ATTR_RX, (m2, name) => ` ${name.toLowerCase()}`);
+          a = a.replace(
+            /\s+(disabled|checked|selected|readonly|required|autoplay|controls|hidden|multiple|novalidate)\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi,
+            (m2, name) => ` ${name.toLowerCase()}`
+          );
         }
 
         if (cfg.removeDefaultType) {
-          a = a.replace(TYPE_JS_RX, '');
-          a = a.replace(TYPE_CSS_RX, '');
+          a = a.replace(/\s+type=(?:"text\/javascript"|'text\/javascript')/i, '');
+          a = a.replace(/\s+type=(?:"text\/css"|'text\/css')/i, '');
         }
 
         const attrsOut = a ? ` ${a}` : '';
@@ -127,18 +115,17 @@ export function minifyHTML(input, opts = {}) {
     }
 
     // 2.3) Collapse runs inside text nodes only (guard NBSP)
-    chunk = chunk.replace(BETWEEN_TAGS_RX, (m, text) => {
-      if (text.indexOf('\u00A0') !== -1) return m;
-      const cleaned = text.length > 1
-        ? text.replace(/\s{2,}/g, ' ').trim()
-        : text.trim();
+    chunk = chunk.replace(/>([^<]+)</g, (m, text) => {
+      if (text.indexOf('\u00A0') !== -1) return m; // keep &nbsp; spacing
+      // collapse 2+ whitespace to single, then trim
+      const cleaned = text.replace(/\s{2,}/g, ' ').trim();
       return '>' + cleaned + '<';
     });
 
     // 2.4) Inter-tag whitespace logic
     if (cfg.collapseWhitespace) {
       // remove all spaces between tags
-      chunk = chunk.replace(INTERTAG_WS_RX, '><');
+      chunk = chunk.replace(/>\s+</g, '><');
 
       // reinsert one space when both adjacent tags are inline-level
       chunk = chunk.replace(
@@ -153,12 +140,11 @@ export function minifyHTML(input, opts = {}) {
       );
 
       // trim text-node edges
-      chunk = chunk
-        .replace(/>\s+([^\s<])/g, '>$1')
-        .replace(/([^\s>])\s+</g, '$1<');
+      chunk = chunk.replace(/>\s+([^\s<])/g, '>$1')
+                   .replace(/([^\s>])\s+</g, '$1<');
 
       // trim global edges
-      chunk = chunk.replace(EDGE_WS_RX, '');
+      chunk = chunk.replace(/^\s+|\s+$/g, '');
     }
 
     s.text = chunk;
@@ -180,60 +166,54 @@ export function minifyHTML(input, opts = {}) {
 function segmentByPreserveTags(html, htmlLower, preserveList) {
   const PRESERVE_SET = new Set(preserveList.map(s => s.toLowerCase()));
   const out = [];
+  let i = 0;
   const n = html.length;
 
-  let lastIndex = 0;
-  PRESERVE_SCAN_RX.lastIndex = 0; // reset global regex
-
-  let match;
-  while ((match = PRESERVE_SCAN_RX.exec(htmlLower)) !== null) {
-    const openIdx = match.index;
-    const tag = match[1]; // already lowercased by htmlLower
-
-    // push preceding non-preserved text
-    if (openIdx > lastIndex) {
-      out.push({ preserve: false, text: html.slice(lastIndex, openIdx) });
+  while (i < n) {
+    const restLower = htmlLower.slice(i);
+    const open = restLower.search(PRESERVE_RX);
+    if (open === -1) {
+      out.push({ preserve: false, text: html.slice(i) });
+      break;
     }
 
-    // if tag not in preserve set, treat this as normal text up to the tag end
+    const at = i + open;
+    if (at > i) {
+      out.push({ preserve: false, text: html.slice(i, at) });
+    }
+
+    const sliceLower = htmlLower.slice(at);
+    const tagMatch = /<\s*(pre|textarea|script|style)\b/i.exec(sliceLower);
+    if (!tagMatch) {
+      out.push({ preserve: false, text: html.slice(at) });
+      break;
+    }
+
+    const tag = tagMatch[1].toLowerCase();
+    const tagOpenLen = tagMatch[0].length;
+
     if (!PRESERVE_SET.has(tag)) {
-      const gtIdx = html.indexOf('>', openIdx);
-      if (gtIdx === -1) {
-        out.push({ preserve: false, text: html.slice(openIdx) });
-        lastIndex = n;
-        break;
-      }
-      out.push({ preserve: false, text: html.slice(openIdx, gtIdx + 1) });
-      lastIndex = gtIdx + 1;
+      out.push({ preserve: false, text: html.slice(at, at + tagOpenLen) });
+      i = at + tagOpenLen;
       continue;
     }
 
-    // find closing tag
-    const openEnd = html.indexOf('>', openIdx);
+    const openEnd = html.indexOf('>', at);
     if (openEnd === -1) {
-      out.push({ preserve: true, text: html.slice(openIdx) });
-      lastIndex = n;
+      out.push({ preserve: false, text: html.slice(at) });
       break;
     }
 
     const closeTag = `</${tag}>`;
     const closeAt = htmlLower.indexOf(closeTag, openEnd + 1);
     if (closeAt === -1) {
-      out.push({ preserve: true, text: html.slice(openIdx) });
-      lastIndex = n;
+      out.push({ preserve: true, text: html.slice(at) });
       break;
     }
 
     const end = closeAt + closeTag.length;
-    out.push({ preserve: true, text: html.slice(openIdx, end) });
-    lastIndex = end;
-
-    // move regex cursor to end to avoid rescanning
-    PRESERVE_SCAN_RX.lastIndex = end;
-  }
-
-  if (lastIndex < n) {
-    out.push({ preserve: false, text: html.slice(lastIndex) });
+    out.push({ preserve: true, text: html.slice(at, end) });
+    i = end;
   }
 
   return out;
