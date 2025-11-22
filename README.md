@@ -44,7 +44,7 @@ Each module has its own `README.md`, tests, and can be imported individually.
 
 You can try each validator interactively in your browser:
 
-- [Dataset Optimizer Test](https://yvancg.github.io/generators/is-dataset-minify/dataset-test.html)
+- [Dataset Optimizer Test](https://yvancg.github.io/optimizers/is-dataset-minify/dataset-test.html)
 - [Google Tag Demo](https://yvancg.github.io/optimizers/is-google-tag/gtag-test.html)
 - [html Minification Demo](https://yvancg.github.io/optimizers/is-html-minify/html-test.html)
 - [JS/CSS Minification Demo](https://yvancg.github.io/optimizers/is-minify/minify-test.html)
