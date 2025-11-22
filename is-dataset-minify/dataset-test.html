@@ -4,11 +4,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Dataset Optimizer Test</title>
-<head>
-  <meta charset="utf-8" />
-  <title>Google Tag Optimizer — gtag.js</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dataset Optimizer — Test</title>
   <style>
     :root { --fg:#0b0b0c; --bg:#f8fafc; --card:#fff; --border:#e5e7eb; --muted:#6b7280; }
     * { box-sizing: border-box; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; }
@@ -16,113 +12,150 @@
     header { padding:18px 20px; background:#fff; border-bottom:1px solid var(--border); }
     h1 { margin:0; font-size:20px; }
     main { max-width:1100px; margin:24px auto; padding:0 16px 48px; }
-    .row { display:grid; grid-template-columns: 1fr; gap:12px; }
-    @media (min-width: 980px) { .row { grid-template-columns: 1fr 1fr; } }
-    .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; }
+    .small { font-size:13px; color:var(--muted); margin-bottom:16px; }
+    .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:16px; }
     label { font-size:12px; color:var(--muted); display:block; margin-bottom:6px; }
-    textarea { width:100%; min-height:240px; resize:vertical; padding:12px 14px; border:1px solid var(--border); border-radius:10px; font-size:13px; }
-    select, input[type=text] {
-      padding:10px 12px;
+    textarea { width:100%; min-height:240px; resize:vertical; padding:12px 14px; border:1px solid var(--border); border-radius:10px; font-size:13px; color:var(--fg); background:#fff; }
+    select, input[type=text], input[type=number] {
+      padding:8px 10px;
       border:1px solid var(--border);
       border-radius:10px;
-      font-size:14px;
+      font-size:13px;
       background:#fff;
+      color:var(--fg);
+      width:100%;
     }
     .controls { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+    .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:10px; }
+    .grid { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:10px; margin-top:12px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    .hint { color:var(--muted); font-size:11px; margin-top:3px; }
     .btn { padding:10px 14px; border:1px solid var(--border); background:#111827; color:#fff; border-radius:10px; cursor:pointer; font-size:14px; }
     .btn.alt { background:#fff; color:#111827; }
-    .stats { font-size:12px; color:var(--muted); margin-top:8px; }
-    .optgrid { display:grid; grid-template-columns: repeat(3, minmax(160px,1fr)); gap:8px; margin-top:10px; }
-    @media (max-width: 720px) { .optgrid { grid-template-columns: 1fr; } }
-    footer { margin-top:24px; font-size:12px; color:var(--muted); }
-    code { background:#f3f4f6; padding:2px 6px; border-radius:6px; }
+    pre {
+      background:#f3f4f6;
+      padding:12px;
+      border-radius:10px;
+      white-space:pre-wrap;
+      word-break:break-word;
+      min-height:160px;
+      font-size:12px;
+      margin-top:12px;
+    }
   </style>
 </head>
 <body>
 
-<header><h1>🧹 Dataset Optimizer Test</h1></header>
-<p class="small">
-  Paste JSON / JSONL / CSV and tweak options to normalize keys, trim strings, drop empty columns, dedupe rows, and shuffle.
-</p>
+<header>
+  <h1>🧹 Dataset Optimizer Test</h1>
+</header>
 
-<label>
-  Input dataset
-  <textarea id="input" placeholder='[
+<main>
+  <p class="small">
+    Paste JSON, JSONL, or CSV and tweak options to normalize keys, trim strings,
+    drop empty columns, dedupe rows, and shuffle.
+  </p>
+
+  <section class="card">
+    <label>
+      Input dataset
+      <textarea id="input" placeholder='[
   { "id": 1, "Text": "  Hello   world  " },
   { "id": 1, "Text": "Hello world" },
   { "id": 2, "Text": "Another row" }
 ]'></textarea>
-</label>
+    </label>
+  </section>
 
-<div class="grid">
-  <label>
-    Input format
-    <select id="format">
-      <option value="auto" selected>auto-detect</option>
-      <option value="json">JSON (array)</option>
-      <option value="jsonl">JSONL</option>
-      <option value="csv">CSV</option>
-    </select>
-  </label>
+  <section class="card">
+    <div class="grid">
+      <div>
+        <label>
+          Input format
+          <select id="format">
+            <option value="auto" selected>auto-detect</option>
+            <option value="json">JSON (array)</option>
+            <option value="jsonl">JSONL</option>
+            <option value="csv">CSV</option>
+          </select>
+        </label>
+      </div>
 
-  <label>
-    Output format
-    <select id="outputFormat">
-      <option value="same" selected>same as input</option>
-      <option value="json">JSON</option>
-      <option value="jsonl">JSONL</option>
-      <option value="csv">CSV</option>
-    </select>
-  </label>
+      <div>
+        <label>
+          Output format
+          <select id="outputFormat">
+            <option value="same" selected>same as input</option>
+            <option value="json">JSON</option>
+            <option value="jsonl">JSONL</option>
+            <option value="csv">CSV</option>
+          </select>
+        </label>
+      </div>
 
-  <label>
-    Key case
-    <select id="keyCase">
-      <option value="none" selected>none</option>
-      <option value="snake">snake_case</option>
-      <option value="camel">camelCase</option>
-    </select>
-    <div class="hint">Normalize field names</div>
-  </label>
+      <div>
+        <label>
+          Key case
+          <select id="keyCase">
+            <option value="none" selected>none</option>
+            <option value="snake">snake_case</option>
+            <option value="camel">camelCase</option>
+          </select>
+        </label>
+        <div class="hint">Normalize field names</div>
+      </div>
 
-  <label>
-    Primary key (for dedupe)
-    <input id="primaryKey" type="text" placeholder="e.g. id or uid"/>
-    <div class="hint">Optional, falls back to full row</div>
-  </label>
+      <div>
+        <label>
+          Primary key (for dedupe)
+          <input id="primaryKey" type="text" placeholder="e.g. id or uid"/>
+        </label>
+        <div class="hint">Optional, falls back to full row</div>
+      </div>
 
-  <label>
-    Max chars per field
-    <input id="maxChars" type="number" min="0" placeholder="no limit"/>
-    <div class="hint">0 or blank disables truncation</div>
-  </label>
+      <div>
+        <label>
+          Max chars per field
+          <input id="maxChars" type="number" min="0" placeholder="no limit"/>
+        </label>
+        <div class="hint">0 or blank disables truncation</div>
+      </div>
 
-  <label>
-    Empty column threshold
-    <input id="emptyThreshold" type="number" min="0" max="1" step="0.05" value="0.95"/>
-    <div class="hint">Drop columns if empty ratio ≥ threshold</div>
-  </label>
-</div>
+      <div>
+        <label>
+          Empty column threshold
+          <input id="emptyThreshold" type="number" min="0" max="1" step="0.05" value="0.95"/>
+        </label>
+        <div class="hint">Drop columns if empty ratio ≥ threshold</div>
+      </div>
+    </div>
 
-<div class="row">
-  <label><input id="trimStrings" type="checkbox" checked> Trim strings</label>
-  <label><input id="collapseWhitespace" type="checkbox" checked> Collapse whitespace</label>
-  <label><input id="dropEmptyColumns" type="checkbox" checked> Drop mostly empty columns</label>
-  <label><input id="dropDuplicates" type="checkbox" checked> Drop duplicate rows</label>
-  <label><input id="shuffle" type="checkbox"> Shuffle rows</label>
-</div>
+    <div class="row" style="margin-top:14px;">
+      <label><input id="trimStrings" type="checkbox" checked> Trim strings</label>
+      <label><input id="collapseWhitespace" type="checkbox" checked> Collapse whitespace</label>
+      <label><input id="dropEmptyColumns" type="checkbox" checked> Drop mostly empty columns</label>
+      <label><input id="dropDuplicates" type="checkbox" checked> Drop duplicate rows</label>
+      <label><input id="shuffle" type="checkbox"> Shuffle rows</label>
+    </div>
 
-<div class="row">
-  <label>Seed (optional)</label>
-  <input id="seed" type="text" placeholder="deterministic shuffle / RNG"/>
-</div>
+    <div class="row">
+      <label>
+        Seed (optional)
+        <input id="seed" type="text" placeholder="deterministic shuffle / RNG"/>
+      </label>
+    </div>
 
-<div class="row" style="margin-top:14px;">
-  <button id="optimize">Optimize</button>
-  <button id="copy" disabled>Copy</button>
-</div>
+    <div class="row" style="margin-top:14px;">
+      <button id="optimize" class="btn">Optimize</button>
+      <button id="copy" class="btn alt" disabled>Copy</button>
+    </div>
+  </section>
 
-<pre id="output">Paste input above and click "Optimize".</pre>
+  <section class="card">
+    <label>Output</label>
+    <pre id="output">Paste input above and click "Optimize".</pre>
+  </section>
+</main>
 
 <script type="module">
   import { optimizeDataset } from './dataset.js';
@@ -145,10 +178,13 @@
     const keyCase = $('keyCase').value || 'none';
     const primaryKey = $('primaryKey').value.trim() || null;
     const maxCharsVal = $('maxChars').value;
-    const maxCharsPerField = maxCharsVal === '' ? null : Math.max(0, parseInt(maxCharsVal, 10) || 0);
+    const maxCharsPerField =
+      maxCharsVal === '' ? null : Math.max(0, parseInt(maxCharsVal, 10) || 0);
     const emptyThresholdVal = $('emptyThreshold').value;
     let emptyColumnThreshold = parseFloat(emptyThresholdVal);
-    if (!Number.isFinite(emptyColumnThreshold) || emptyColumnThreshold < 0 || emptyColumnThreshold > 1) {
+    if (!Number.isFinite(emptyColumnThreshold) ||
+        emptyColumnThreshold < 0 ||
+        emptyColumnThreshold > 1) {
       emptyColumnThreshold = 0.95;
     }
 
