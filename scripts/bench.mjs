@@ -3,7 +3,7 @@ import { writeFileSync, mkdirSync, readFileSync } from 'node:fs';
 import { performance } from 'node:perf_hooks';
 
 // --- Import targets explicitly to avoid discovery misses ---
-import { optimizeDataset } from './is-dataset-minify/dataset.js';
+import { optimizeDataset } from '../is-dataset-minify/dataset.js';
 import { optimizeGoogleTag } from '../is-google-tag/gtag.js';
 import { minifyHTML }   from '../is-html-minify/html.js';
 import { minifyJS }     from '../is-minify/minify.js';
@@ -21,18 +21,17 @@ async function bench(fn, iters) {
 }
 
 const targets = [
-  {
-    name: 'dataset',
-    file: './is-dataset-minify/dataset.js',
-    bench: async (m) => {
-      return await bench(() =>
-        m.optimizeDataset('[{"id":1,"name":"John"},{"id":1,"name":"John"}]', {
-          format: 'json',
-          dropDuplicateRows: true
-        }), 200
-      );
-    }
-  },
+	{
+  	name: 'dataset',
+  	fn: () => optimizeDataset(
+    	'[{"id":1,"name":"John"},{"id":1,"name":"John"}]',
+    	{
+      	format: 'json',
+      	dropDuplicateRows: true
+    	}
+  	),
+  	iters: 200,
+	},
   {
     name: 'gtag',
     fn: () => optimizeGoogleTag(String.raw`
