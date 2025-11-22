@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "speed",
-  "message": "NaN ops/s",
-  "color": "lightgrey"
+  "message": "116,705 ops/s",
+  "color": "blue"
 }
