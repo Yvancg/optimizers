@@ -9,7 +9,7 @@ Each tool focuses on a single responsibility and runs without build steps or run
 
 Available modules:
 
-- **is-dataset** — High-performance dataset optimizer for JSON, JSONL, and CSV.  
+- **is-dataset-minify** — High-performance dataset optimizer for JSON, JSONL, and CSV.  
   [![dataset gzip](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/metrics/dataset.js.json)](./metrics/dataset.js.json)
   [![dataset ops/s](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/bench/dataset.json)](./bench/dataset.json)
   
