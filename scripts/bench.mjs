@@ -22,7 +22,7 @@ async function bench(fn, iters) {
 const targets = [
   {
     name: 'dataset',
-    file: './is-dataset/dataset.js',
+    file: './is-dataset-minify/dataset.js',
     bench: async (m) => {
       return await bench(() =>
         m.optimizeDataset('[{"id":1,"name":"John"},{"id":1,"name":"John"}]', {
