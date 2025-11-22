@@ -9,6 +9,10 @@ Each tool focuses on a single responsibility and runs without build steps or run
 
 Available modules:
 
+- **is-dataset** — High-performance dataset optimizer for JSON, JSONL, and CSV.  
+  [![dataset gzip](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/metrics/dataset.js.json)](./metrics/dataset.js.json)  
+  [![dataset ops/s](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/bench/dataset.json)](./bench/dataset.json)
+  
 - **is-google-tag** — Optimizes Google Tag for async, non-blocking, privacy-safe loading.  
   [![gtag gzip](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/metrics/gtag.js.json)](./metrics/gtag.js.json)
   [![gtag ops/s](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/bench/gtag.json)](./bench/gtag.json)
@@ -40,6 +44,7 @@ Each module has its own `README.md`, tests, and can be imported individually.
 
 You can try each validator interactively in your browser:
 
+- [Dataset Optimizer Test](https://yvancg.github.io/generators/is-dataset-minify/dataset-test.html)
 - [Google Tag Demo](https://yvancg.github.io/optimizers/is-google-tag/gtag-test.html)
 - [html Minification Demo](https://yvancg.github.io/optimizers/is-html-minify/html-test.html)
 - [JS/CSS Minification Demo](https://yvancg.github.io/optimizers/is-minify/minify-test.html)
@@ -72,11 +77,23 @@ or per-module packages when published
 ## Example Usage
 
 ```js
+import { optimizeDataset } from './is-dataset/dataset.js';
 import { optimizeGTag } from './is-google-tag/gtag.js';
 import { minifyHTML }   from './is-html-minify/html.js';
 import { minifyJS, minifyCSS } from './is-minify/minify.js';
 import { promptMinify } from './is-prompt-minify/prompt.js';
 import { stripAnsi } from './is-strip-ansi/strip.js';
+
+console.log(generateDataset({ count: 3, format: 'jsonl', seed: 'demo' }));
+// → '{"id":"...","text":"Lorem ipsum ..."}'
+
+console.log(
+  optimizeDataset(
+    '[{"id":1,"Text":"  Hello   world  "},{"id":1,"Text":"Hello world"}]',
+    { format: 'json', keyCase: 'snake', dropDuplicateRows: true }
+  )
+);
+// → '[{"id":1,"text":"Hello world"}]'
 
 console.log(optimizeGTag('<script src="https://www.googletagmanager.com/gtag/js?id=G-TEST"></script>'));
 // → optimized, async, privacy-safe version of the tag
@@ -115,6 +132,7 @@ validators/
   ├─ README.md
   ├─ SECURITY.md
   ├─ catalog.json
+  ├─ is-dataset-minify/
   ├─ is-google-tag/
   ├─ is-html-minify/
   ├─ is-minify/
