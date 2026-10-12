@@ -4,7 +4,7 @@
 // Security: pure string processing; no eval, no parsing.
 // Perf: O(n) single pass regex cleanup.
 
-const MULTISPACE = /\s{2,}/g;
+const MULTISPACE = /[^\S\r\n]{2,}/g;
 const DUP_WORDS  = /(\b\w+\b)(\s+\1\b)+/gi;
 const TRIPLE_NL  = /\n{3,}/g;
 
@@ -60,7 +60,7 @@ export function promptMinify(input, opts = {}) {
   let text = String(input).replace(/\r\n?/g, '\n');
   text = text.replace(MULTISPACE, ' ');
   text = text.replace(TRIPLE_NL, '\n\n');
-  text = text.replace(DUP_WORDS, '$1');
+  if (opts.removeRepeatedWords === true) text = text.replace(DUP_WORDS, '$1');
   if (opts.trim !== false) text = text.trim();
   return text;
 }
@@ -76,7 +76,7 @@ export function optimizePrompt(input, opts = {}) {
   const cfg = {
     trim: true,
     minGainPct: 0,   // stop if token savings < 5%
-    noise: true,
+    noise: false,
     ...opts
   };
 
@@ -88,7 +88,7 @@ export function optimizePrompt(input, opts = {}) {
   // Pass 1: structural minify
   let out = promptMinify(input, { trim: cfg.trim });
 
-  // Pass 2: noise filtering (optional)
+  // Pass 2: potentially semantic noise filtering (opt-in only)
   if (cfg.noise) out = removeNoise(out);
 
   // One more light structural pass to settle spacing after removals
