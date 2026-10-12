@@ -13,7 +13,7 @@ One file. ESM. Works in browser and Node.
 Most minifiers are over-engineered, depend on heavy parsers, or risk breaking code through unsafe rewrites.
 `is-minify` takes the opposite approach: it’s small, transparent, and deterministic.
 	•	It avoids AST parsing and complex optimizations that can introduce subtle bugs.
-	•	It guarantees that every output can still be parsed by any compliant JS or CSS engine.
+	•	It leaves many complex inputs unchanged to avoid risky rewrites.
 	•	It is intended for simple snippets, not sanitization or production bundling.
 
 ---
