@@ -4,7 +4,7 @@ A collection of minimal, dependency-free, performance-focused utilities for impr
 
 ## Overview
 
-**Optimizers** provides safe, auditable modules designed to make code smaller and faster without unsafe parsing or heavy dependencies.
+**Optimizers** provides safe, auditable modules designed to make code smaller and faster with conservative transformations and no runtime dependencies.
 Each tool focuses on a single responsibility and runs without build steps or runtime polyfills.
 
 Available modules:
@@ -13,7 +13,7 @@ Available modules:
   [![dataset gzip](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/metrics/dataset.js.json)](./metrics/dataset.js.json)
   [![dataset ops/s](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/bench/dataset.json)](./bench/dataset.json)
   
-- **is-google-tag** — Optimizes Google Tag for async, non-blocking, privacy-safe loading.  
+- **is-google-tag** — Optimizes Google Tag for async, non-blocking, simplified loading for recognized GA4 measurement IDs.  
   [![gtag gzip](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/metrics/gtag.js.json)](./metrics/gtag.js.json)
   [![gtag ops/s](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/bench/gtag.json)](./bench/gtag.json)
   
@@ -21,11 +21,11 @@ Available modules:
   [![html gzip](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/metrics/html.js.json)](./metrics/html.js.json)
   [![html ops/s](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/bench/html-minify.json)](./bench/html.json)
 
-- **is-minify** — Safe, dependency-free JavaScript and CSS minifier for browser and Node.  
+- **is-minify** — Conservative JavaScript and CSS whitespace optimizer. Complex syntax is returned unchanged.  
   [![minify gzip](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/metrics/minify.js.json)](./metrics/minify.js.json)
   [![minify ops/s](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/bench/minify.json)](./bench/minify.json)
   
-- **is-prompt-minify** — Compact large language model (LLM) prompts by removing redundancy, extra whitespace, and repeated phrases without altering meaning.  
+- **is-prompt-minify** — Compact large language model (LLM) prompts by removing redundancy, extra whitespace, and repeated phrases with semantic phrase deletion disabled by default.  
   [![prompt gzip](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/metrics/prompt.js.json)](./metrics/prompt.js.json)
   [![prompt ops/s](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/bench/prompt.json)](./bench/prompt.json)
 
