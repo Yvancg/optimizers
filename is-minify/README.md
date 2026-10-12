@@ -66,7 +66,7 @@ console.log(minify(css, 'css'));
 
 `minifyCSS(code)` returns `calc(...)` inputs unchanged except for edge trimming to preserve operator spacing. Other inputs use heuristic whitespace cleanup.
 
-Neither function parses full JavaScript/CSS syntax or guarantees equivalence for arbitrary programs. For production bundling, use a tested language-aware minifier. These functions do not sanitize untrusted content.
+The JS optimizer leaves numeric-property-access syntax such as `1 .toString()` unchanged. Neither function parses full JavaScript/CSS syntax or guarantees equivalence for arbitrary programs. For production bundling, use a tested language-aware minifier. These functions do not sanitize untrusted content.
 
 ## 🧪 Example (test.html)
 
