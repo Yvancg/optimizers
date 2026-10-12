@@ -91,6 +91,8 @@ optimizeDataset(
 
 ---
 
+CSV output quotes header names containing separators, quotes, or newlines. Trimming, key changes, and column dropping are lossy operations; check output before using it in training pipelines.
+
 ## 🧪 Browser test
 
 Clone the repo and open `dataset-test.html` in your browser  
