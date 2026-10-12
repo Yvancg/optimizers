@@ -160,7 +160,7 @@ export function minifyJS(src) {
 export function minifyCSS(src) {
   if (typeof src !== 'string') return '';
   // calc() needs whitespace around binary + and - operators.
-  if (/\\bcalc\\s*\\(/i.test(src)) return src.trim();
+  if (/\bcalc\s*\(/i.test(src)) return src.trim();
   const out = [];
   let i = 0, n = src.length;
   let inStr = false; // '"' | "'"
