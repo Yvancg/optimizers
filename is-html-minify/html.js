@@ -126,7 +126,7 @@ export function minifyHTML(input, opts = {}) {
     if (cfg.collapseWhitespace) {
       // Preserve a separator between tags. Removing it can concatenate words
       // such as <strong>Hello</strong> <em>world</em>.
-      chunk = chunk.replace(/>\\s+</g, '> ').replace(/\\s+</g, ' <');
+      chunk = chunk.replace(/>\s+</g, '> ').replace(/\s+</g, ' <');
 
       // trim global edges
       chunk = chunk.replace(/^\s+|\s+$/g, '');
