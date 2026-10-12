@@ -95,4 +95,5 @@ console.table(targets.map(t => {
   return { target: t.name, iters: t.iters.toLocaleString(), badge };
 }));
 
-// Do not exit non-zero; let workflow commit badges
+// An unsuccessful target must fail the manually triggered benchmark run.
+if (failed) process.exitCode = 1;
