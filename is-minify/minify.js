@@ -24,7 +24,8 @@ export function minifyJS(src) {
   if (typeof src !== 'string') return '';
   // This tiny lexer is not a JS parser. Preserve the source for constructs
   // where whitespace, comments, regexes or template syntax may change behavior.
-  if (src.includes('\u0060') || src.includes('/') || /[\r\n]/.test(src) || /[+\-]\s+[+\-]/.test(src)) return src.trim();
+  // A numeric literal followed by a property dot needs a separator: 1 .toString().
+  if (src.includes('\u0060') || src.includes('/') || /[\r\n]/.test(src) || /[+\-]\s+[+\-]/.test(src) || /\b\d+\s+\./.test(src)) return src.trim();
   const out = [];
   let i = 0, n = src.length;
 
