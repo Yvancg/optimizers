@@ -60,6 +60,8 @@ To run the dependency-free regression tests with Node.js 22+:
 
 ~~~bash
 node --experimental-default-type=module --test tests/*.test.mjs
+
+Benchmarks and gzip badges refresh through manually dispatched workflows only; correctness tests still run on pushes and PRs.
 ~~~
 
 ## Behavior and limitations
