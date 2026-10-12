@@ -60,9 +60,9 @@ To run the dependency-free regression tests with Node.js 22+:
 
 ~~~bash
 node --experimental-default-type=module --test tests/*.test.mjs
+~~~
 
 Benchmarks and gzip badges refresh through manually dispatched workflows only; correctness tests still run on pushes and PRs.
-~~~
 
 ## Behavior and limitations
 - `minifyJS` and `minifyCSS` are **heuristic**, not full parsers. They return certain complex inputs unchanged instead of risking a rewrite. Do not rely on them for production bundling or sanitization.
