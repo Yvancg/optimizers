@@ -17,7 +17,7 @@ export function optimizeGoogleTag(input, opts = {}) {
   // Build async snippet
   const asyncAttr = cfg.async ? 'async' : 'defer';
   const params = [
-    cfg.transport ? `transport_type: '${cfg.transport}'` : '',
+    ['beacon', 'image', 'xhr'].includes(cfg.transport) ? `transport_type: '${cfg.transport}'` : '',
     cfg.anonymizeIP ? 'anonymize_ip: true' : ''
   ].filter(Boolean).join(', ');
 
