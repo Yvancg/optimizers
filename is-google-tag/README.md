@@ -3,7 +3,7 @@
 [![gtag gzip](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/metrics/gtag.js.json)](./metrics/gtag.js.json)
 [![gtag ops/s](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/bench/gtag.json)](./bench/gtag.json)
 
-**Optimize Google Tag** for async, non-blocking, privacy-safe loading.
+**Rewrite recognized GA4 measurement tags** with async or deferred loading.
 Supports GA4 measurement IDs with a `G-` prefix; it does not convert GTM or Google Ads snippets.
 
 ---
@@ -11,7 +11,7 @@ Supports GA4 measurement IDs with a `G-` prefix; it does not convert GTM or Goog
 ## 🚀 Why
 
 Default Google Tag snippets often block rendering or run synchronously.
-`is-google-tag` cleans, rewrites, and re-emits a safe async version that loads instantly.
+`is-google-tag` builds a small snippet for recognized GA4 measurement IDs; review generated scripts before deploying.
 - Forces async loading (async or defer)
 - Adds anonymize_ip and transport_type options
 - Rebuilds a simple GA4 snippet; it is not a sanitizer
@@ -66,7 +66,6 @@ optimizeGoogleTag(input: string, opts?: {
   anonymizeIP?: boolean;     // default true
   transport?: 'beacon'|'xhr'|'image'; // default 'beacon'
   async?: boolean;           // true = async, false = defer
-  idFallback?: string;       // default 'G-XXXXXX'
 }): string
 ```
 
