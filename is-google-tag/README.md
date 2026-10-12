@@ -4,7 +4,7 @@
 [![gtag ops/s](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/bench/gtag.json)](./bench/gtag.json)
 
 **Optimize Google Tag** for async, non-blocking, privacy-safe loading.
-Ensures your GA4 or GTM scripts run fast, securely, and without blocking rendering.
+Supports GA4 measurement IDs with a `G-` prefix; it does not convert GTM or Google Ads snippets.
 
 ---
 
@@ -14,8 +14,8 @@ Default Google Tag snippets often block rendering or run synchronously.
 `is-google-tag` cleans, rewrites, and re-emits a safe async version that loads instantly.
 - Forces async loading (async or defer)
 - Adds anonymize_ip and transport_type options
-- Strips unsafe patterns like document.write
-- Works for GA4, GTM, or Ads (G-*, GTM-*, AW-*)
+- Rebuilds a simple GA4 snippet; it is not a sanitizer
+- Leaves unrecognized IDs, including GTM-* and AW-*, unchanged
 
 ---
 
@@ -32,7 +32,7 @@ Default Google Tag snippets often block rendering or run synchronously.
 ## 📦 Usage
 
 ```js
-import { optimizeGTag } from './gtag.js';
+import { optimizeGoogleTag } from './gtag.js';
 
 const raw = `
 <script src="https://www.googletagmanager.com/gtag/js?id=G-ABC123"></script>
@@ -43,7 +43,7 @@ const raw = `
   gtag('config', 'G-ABC123');
 </script>`;
 
-console.log(optimizeGTag(raw));
+console.log(optimizeGoogleTag(raw));
 ```
 **Output:**
 ```html
@@ -62,7 +62,7 @@ console.log(optimizeGTag(raw));
 ## 🧠 API
 
 ```ts
-optimizeGTag(input: string, opts?: {
+optimizeGoogleTag(input: string, opts?: {
   anonymizeIP?: boolean;     // default true
   transport?: 'beacon'|'xhr'|'image'; // default 'beacon'
   async?: boolean;           // true = async, false = defer
@@ -71,6 +71,8 @@ optimizeGTag(input: string, opts?: {
 ```
 
 ---
+
+Unrecognized input is returned unchanged rather than inventing a placeholder ID. Review the output before deployment: the function does not preserve existing events or custom configuration.
 
 ## 🧪 Browser test
 
@@ -87,7 +89,7 @@ No `npm install` or build step required.
 ### Node one-liners
 
 ```bash
-node --input-type=module -e "import('./gtag.js').then(m=>console.log(m.optimizeGTag('<script src=https://www.googletagmanager.com/gtag/js?id=G-TEST></script>')))"
+node --input-type=module -e "import('./gtag.js').then(m=>console.log(m.optimizeGoogleTag('<script src=https://www.googletagmanager.com/gtag/js?id=G-TEST></script>')))"
 ```
 
 ---
