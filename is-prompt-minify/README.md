@@ -14,12 +14,12 @@ Prompt tokens are expensive.
 Every redundant space, newline, or repeated word wastes compute and cost.  
 `is-prompt-minify` provides a lightweight, deterministic way to shrink text before sending it to an AI API.
 
-- Removes duplicated words and blank lines  
+- Can remove duplicated adjacent words when explicitly requested  
 - Collapses multi-space sequences  
 - Normalizes newlines  
-- Cleans boilerplate (e.g., “please”, “as an AI language model”, “make sure to”).
+- Optionally removes filler phrases (disabled by default, may change meaning).
 - Optionally skips minor edits if compression gain is negligible.
-- Reduces token count and improves model throughput
+- Estimates token counts heuristically; savings depend on the model tokenizer
 
 ---
 
