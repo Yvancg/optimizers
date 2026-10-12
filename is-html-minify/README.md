@@ -97,6 +97,8 @@ With `trimAttrWhitespace: true`, attribute values may be trimmed. Leave aggressi
 
 ---
 
+With `collapseWhitespace: false`, the original spacing inside ordinary text nodes and between tags is retained. The optimizer is still heuristic, not a complete HTML parser.
+
 ## 🧪 Browser test
 
 Clone the repo, open `html-test.html` — interactive test in your browser  

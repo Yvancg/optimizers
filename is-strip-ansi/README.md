@@ -71,6 +71,8 @@ safeLog(value: any): void
 
 ---
 
+OSC-8 links retain visible label text while removing embedded styling sequences. This is for log display, not trusted terminal interpretation.
+
 ## 🧪 Browser test
 
 Clone the repo, open `strip-test.html` — interactive test in your browser  

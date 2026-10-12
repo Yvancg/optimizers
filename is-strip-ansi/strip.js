@@ -63,7 +63,8 @@ export function stripAnsi(input) {
             const st2 = findST(s, closeOpen + 3);
             if (st2 !== -1) {
               // append only the visible text between the two OSC-8 sequences
-              out += s.slice(textStart, closeOpen);
+              // Visible OSC-8 label may contain nested SGR/CSI sequences.
+              out += stripAnsi(s.slice(textStart, closeOpen));
               i = st2 + stLen(s, st2);
               continue;
             }

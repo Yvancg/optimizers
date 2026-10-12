@@ -115,7 +115,7 @@ export function minifyHTML(input, opts = {}) {
     }
 
     // 2.3) Collapse runs inside text nodes only (guard NBSP)
-    chunk = chunk.replace(/>([^<]+)</g, (m, text) => {
+    if (cfg.collapseWhitespace) chunk = chunk.replace(/>([^<]+)</g, (m, text) => {
       if (text.indexOf('\u00A0') !== -1) return m; // keep &nbsp; spacing
       // collapse 2+ whitespace to single, then trim
       const cleaned = text.replace(/\s{2,}/g, ' ');
