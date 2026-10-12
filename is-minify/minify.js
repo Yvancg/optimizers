@@ -21,6 +21,10 @@ export function minify(code, kind) {
 //
 // This is conservative. It won’t reorder code or do unsafe munging.
 export function minifyJS(src) {
+  if (typeof src !== 'string') return '';
+  // This tiny lexer is not a JS parser. Preserve the source for constructs
+  // where whitespace, comments, regexes or template syntax may change behavior.
+  if (/[\x60\\r\\n/]/.test(src) || /[+\\-]\\s+[+\\-]/.test(src)) return src.trim();
   const out = [];
   let i = 0, n = src.length;
 
@@ -154,6 +158,9 @@ export function minifyJS(src) {
 // 3) Remove spaces around : ; { } , > + ~ = | ^ $ *
 // 4) Drop last ; before }
 export function minifyCSS(src) {
+  if (typeof src !== 'string') return '';
+  // calc() needs whitespace around binary + and - operators.
+  if (/\\bcalc\\s*\\(/i.test(src)) return src.trim();
   const out = [];
   let i = 0, n = src.length;
   let inStr = false; // '"' | "'"
