@@ -3,7 +3,7 @@
 [![minify gzip](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/metrics/minify.js.json)](./metrics/minify.js.json)
 [![minify ops/s](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/bench/minify.json)](./bench/minify.json)
 
-**Tiny, dependency-free minifier for JavaScript and CSS.**  
+**Tiny, dependency-free, best-effort JavaScript/CSS whitespace optimizer.**  
 One file. ESM. Works in browser and Node.
 
 ---
@@ -14,14 +14,14 @@ Most minifiers are over-engineered, depend on heavy parsers, or risk breaking co
 `is-minify` takes the opposite approach: it’s small, transparent, and deterministic.
 	•	It avoids AST parsing and complex optimizations that can introduce subtle bugs.
 	•	It guarantees that every output can still be parsed by any compliant JS or CSS engine.
-	•	It’s ideal for quick in-browser transformations, form submissions, or server-side sanitization.
+	•	It is intended for simple snippets, not sanitization or production bundling.
 
 ---
 
 ## 🌟 Features
 
 - ✅ JS and CSS modes in one module  
-- ✅ Safe comment stripping and whitespace collapse  
+- ✅ Conservative whitespace and comment handling  
 - ✅ No AST, no build step, no dependencies  
 - ✅ Works in browser, Node.js, and edge runtimes  
 
@@ -58,23 +58,15 @@ console.log(minify(css, 'css'));
 
 ---
 
-## 🧠 API
+## API
 
-### `minify(source: string, kind: 'js' | 'css'): string`
+`minify(code, kind)` dispatches to `minifyJS(code)` or `minifyCSS(code)`.
 
-Unified entry. Routes to the right minifier.
+`minifyJS(code)` returns source unchanged except for edge trimming if it contains a slash, a template literal, a newline, or potentially ambiguous adjacent operators. Simple inputs receive heuristic whitespace cleanup.
 
-### `minifyJS(source: string): string`
+`minifyCSS(code)` returns `calc(...)` inputs unchanged except for edge trimming to preserve operator spacing. Other inputs use heuristic whitespace cleanup.
 
-Conservative JS minifier.  
-Handles `//` and `/*...*/` comments, strings, template literals, and regex literals.
-
-### `minifyCSS(source: string): string`
-
-Conservative CSS minifier.  
-Strips `/*...*/` comments, collapses whitespace, and tightens `: ; { } , > + ~ =`.
-
----
+Neither function parses full JavaScript/CSS syntax or guarantees equivalence for arbitrary programs. For production bundling, use a tested language-aware minifier. These functions do not sanitize untrusted content.
 
 ## 🧪 Example (test.html)
 
