@@ -11,8 +11,9 @@ export function optimizeGoogleTag(input, opts = {}) {
   };
 
   // Extract measurement ID
-  const idMatch = input.match(/id=([A-Z0-9\-]+)/i);
-  const id = idMatch ? idMatch[1] : 'G-XXXXXX';
+  const id = input.match(/\bG-[A-Z0-9]+\b/i)?.[0];
+  // Do not invent a measurement ID or treat GTM containers as GA4 tags.
+  if (!id) return input;
 
   // Build async snippet
   const asyncAttr = cfg.async ? 'async' : 'defer';
