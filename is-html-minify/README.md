@@ -3,8 +3,8 @@
 [![html gzip](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/metrics/html.js.json)](./metrics/html.js.json) 
 [![html ops/s](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/bench/html-minify.json)](./bench/html-minify.json)
 
-Safe, dependency-free HTML minifier.  
-Removes comments and collapses whitespace while preserving `<pre>`, `<textarea>`, `<script>`, and `<style>` content.
+Dependency-free, conservative HTML whitespace optimizer.  
+Can remove comments and simplify whitespace while preserving `<pre>`, `<textarea>`, `<script>`, and `<style>` content.
 
 ---
 
@@ -15,7 +15,7 @@ Most HTML minifiers are large, unsafe, or over-optimized.
 
 - No AST parsing or rewriting of HTML structure  
 - Preserves formatting inside code-sensitive tags  
-- Guaranteed valid output for any compliant browser or parser  
+- Best-effort output; this is not a complete HTML parser  
 - Ideal for edge rendering, CMS pipelines, and in-browser transforms  
 
 ---
@@ -23,7 +23,7 @@ Most HTML minifiers are large, unsafe, or over-optimized.
 ## 🌟 Features
 
 - ✅ Removes HTML comments safely  
-- ✅ Collapses whitespace between tags and attributes  
+- ✅ Keeps significant inter-tag whitespace and attribute values by default  
 - ✅ Keeps `<pre>`, `<textarea>`, `<script>`, and `<style>` intact  
 - ✅ No dependencies, no build step  
 - ✅ Works in browser, Node.js, and edge runtimes  
@@ -56,16 +56,18 @@ console.log(minifyHTML(html));
 minifyHTML(input, {
   removeComments?: true,
   collapseWhitespace?: true,
-  trimAttrWhitespace?: true,
+  trimAttrWhitespace?: false,
   removeEmptyAttributes?: false,
   booleanAttrShortening?: false,
-  removeDefaultType?: true,
+  removeDefaultType?: false,
   keepMarkers?: string[],           // e.g. ['prettier-ignore']
   preserveTags?: string[]           // override ['pre','textarea','script','style']
 })
 ```
 
 ---
+
+With `trimAttrWhitespace: true`, attribute values may be trimmed. Leave aggressive options disabled unless you have verified the output against your HTML.
 
 ## 🧪 Example (`html-test.html`)
 

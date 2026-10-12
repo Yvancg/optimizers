@@ -26,10 +26,10 @@ export function minifyHTML(input, opts = {}) {
   const cfg = {
     removeComments: true,
     collapseWhitespace: true,
-    trimAttrWhitespace: true,
+    trimAttrWhitespace: false,
     removeEmptyAttributes: false,
     booleanAttrShortening: false,
-    removeDefaultType: true,
+    removeDefaultType: false,
     keepMarkers: [],               // e.g. ['prettier-ignore']
     preserveTags: DEFAULT_PRESERVE,
     ...opts
@@ -39,7 +39,7 @@ export function minifyHTML(input, opts = {}) {
   html = html.replace(/^\s*<!doctype[^>]*>/i, '<!DOCTYPE html>');
 
   // Precompute lowercased HTML once for case-insensitive operations
-  const htmlLower = html.toLowerCase();
+  // Recompute after keep-marker placeholders to preserve matching offsets.
 
   // 0.1) Extract keep-markers so they survive minification
   const kept = new Map();
@@ -57,7 +57,7 @@ export function minifyHTML(input, opts = {}) {
   }
 
   // 1) Segment by preserve tags
-  const segs = segmentByPreserveTags(html, htmlLower, cfg.preserveTags);
+  const segs = segmentByPreserveTags(html, html.toLowerCase(), cfg.preserveTags);
 
   // 2) Process non-preserved segments
   for (const s of segs) {
@@ -118,30 +118,15 @@ export function minifyHTML(input, opts = {}) {
     chunk = chunk.replace(/>([^<]+)</g, (m, text) => {
       if (text.indexOf('\u00A0') !== -1) return m; // keep &nbsp; spacing
       // collapse 2+ whitespace to single, then trim
-      const cleaned = text.replace(/\s{2,}/g, ' ').trim();
+      const cleaned = text.replace(/\s{2,}/g, ' ');
       return '>' + cleaned + '<';
     });
 
     // 2.4) Inter-tag whitespace logic
     if (cfg.collapseWhitespace) {
-      // remove all spaces between tags
-      chunk = chunk.replace(/>\s+</g, '><');
-
-      // reinsert one space when both adjacent tags are inline-level
-      chunk = chunk.replace(
-        /(>)(<\/?([A-Za-z][^\s/>]*)\b[^>]*>)(<\/?([A-Za-z][^\s/>]*)\b[^>]*>)/g,
-        (m, gt, t1, n1, t2, n2) => {
-          const n1Lower = n1.toLowerCase();
-          const n2Lower = n2.toLowerCase();
-          return (INLINE_TAGS.has(n1Lower) && INLINE_TAGS.has(n2Lower))
-            ? `${gt}${t1} ${t2}`
-            : `${gt}${t1}${t2}`;
-        }
-      );
-
-      // trim text-node edges
-      chunk = chunk.replace(/>\s+([^\s<])/g, '>$1')
-                   .replace(/([^\s>])\s+</g, '$1<');
+      // Preserve a separator between tags. Removing it can concatenate words
+      // such as <strong>Hello</strong> <em>world</em>.
+      chunk = chunk.replace(/>\s+(?=<)/g, '> ');
 
       // trim global edges
       chunk = chunk.replace(/^\s+|\s+$/g, '');

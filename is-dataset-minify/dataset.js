@@ -40,7 +40,7 @@ export function optimizeDataset(input, options = {}) {
   }
 
   // RNG for shuffling
-  const R = seed ? seededRNG(String(seed)) : cryptoRNG();
+  const R = seed != null ? seededRNG(String(seed)) : cryptoRNG();
 
   // 1. Normalize keys if requested
   if (keyCase !== 'none') {
@@ -157,7 +157,7 @@ export function optimizeDataset(input, options = {}) {
   if (outFormat === 'csv') {
     const headerRow = headers || keptKeys;
     const parts = [];
-    parts.push(headerRow.join(','));
+    parts.push(headerRow.map(name => csvCell(name, ',')).join(','));
     for (const r of rows) {
       const line = headerRow
         .map(name => csvCell(r[name], ','))

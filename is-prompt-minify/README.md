@@ -3,8 +3,8 @@
 [![prompt gzip](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/metrics/prompt.js.json)](./metrics/prompt.js.json)
 [![prompt ops/s](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yvancg/optimizers/main/bench/prompt.json)](./bench/prompt.json)
 
-Compact and normalize long LLM prompts by removing redundant words, formatting noise, and filler phrases such as “please” or “as an AI language model.”
-Designed for pre-processing prompts before sending them to language models, to reduce token count while preserving semantics.
+Conservatively normalize prompt whitespace and optionally remove repeated words or filler phrases.
+Designed for pre-processing prompts before sending them to language models, to reduce formatting overhead. Removing phrases can change meaning; this is opt-in.
 
 ---
 
@@ -14,12 +14,12 @@ Prompt tokens are expensive.
 Every redundant space, newline, or repeated word wastes compute and cost.  
 `is-prompt-minify` provides a lightweight, deterministic way to shrink text before sending it to an AI API.
 
-- Removes duplicated words and blank lines  
+- Can remove duplicated adjacent words when explicitly requested  
 - Collapses multi-space sequences  
 - Normalizes newlines  
-- Cleans boilerplate (e.g., “please”, “as an AI language model”, “make sure to”).
+- Optionally removes filler phrases (disabled by default, may change meaning).
 - Optionally skips minor edits if compression gain is negligible.
-- Reduces token count and improves model throughput
+- Estimates token counts heuristically; savings depend on the model tokenizer
 
 ---
 
@@ -33,71 +33,25 @@ Every redundant space, newline, or repeated word wastes compute and cost.
 
 ---
 
-## 📦 Usage
+## Usage
+~~~js
+import { promptMinify, optimizePrompt } from './prompt.js';
 
-***Input***
-```js
-import { optimizePrompt } from './is-prompt-minify/prompt.js';
+console.log(promptMinify('Please  keep   this.')); // 'Please keep this.'
+console.log(promptMinify('No no', { removeRepeatedWords: true })); // 'No'
+const { optimized, stats } = optimizePrompt('Please   keep this.');
+// `noise` defaults to false: 'Please' is retained.
+console.log(optimized, stats);
 
-const text = `
-You are a helpful helpful AI assistant.
+// Opt in only when dropping instruction phrases is acceptable:
+console.log(optimizePrompt('Please keep this.', { noise: true }).optimized);
+~~~
 
-Please please summarize the following following text clearly clearly.
+## API
 
-It should also also normalize newlines and trim trim output.
-`;
+`promptMinify(input, { trim = true, removeRepeatedWords = false })` returns a string. It collapses repeated horizontal whitespace, reduces three or more newlines to two, and removes duplicate adjacent words **only if** `removeRepeatedWords: true`.
 
-const { optimized, stats } = optimizePrompt(text, { minGainPct: 0, noise: true });
-
-console.log(optimized);
-console.log(stats);
-```
-
-***Output***
-```txt
-You are a helpful AI assistant.
-summarize the following text clearly.
-It should also normalize newlines and trim output.
-```
-
----
-
-## 🧠 API
-
-### `promptMinify(input: string, opts?) → string`
-Performs base structural cleanup.  
-Collapses multiple spaces, repeated words, and triple newlines.
-
----
-
-### `optimizePrompt(input: string, opts?) → { optimized, stats }`
-Advanced mode with noise filtering and token-based threshold.
-
-**Options:**
-
-| Option | Type | Default | Description |
-|:--------|:------|:----------|:-------------|
-| `trim` | `boolean` | `true` | Trim leading and trailing whitespace. |
-| `noise` | `boolean` | `true` | Remove filler and polite phrases (e.g., “please”, “as an AI language model”). |
-| `minGainPct` | `number` | `0` | Skip edits if token reduction below threshold |
-
-
-***Returns***
-```ts
-{
-  optimized: string,
-  stats: {
-    bytesBefore: number,
-    bytesAfter: number,
-    savedBytesPct: number,
-    tokensBefore: number,
-    tokensAfter: number,
-    savedTokensPct: number
-  }
-}
-```
-
----
+`optimizePrompt(input, { trim = true, noise = false, minGainPct = 0 })` returns `{ optimized, stats }`. Its token count is a heuristic, not a provider tokenizer. `noise: true` removes certain phrases and may change meaning. It does not enable `removeRepeatedWords`.
 
 ## 🧪 Example (test.html)
 
